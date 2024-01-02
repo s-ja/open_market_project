@@ -4,12 +4,6 @@ import {
 	FilterSelect,
 } from "@/components/FilterComponent";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import {
-	Heading,
-	ProductContainer,
-	ProductList,
-	ProductSection,
-} from "@/styles/ProductListStyle";
 import { ProductListItem } from "@/components/ProductListIComponent";
 import SearchBar from "@/components/SearchBar";
 import { useCategoryFilterProductList } from "@/hooks/useCategoryFilterProductList";
@@ -18,6 +12,12 @@ import {
 	categoryValueState,
 	searchKeywordState,
 } from "@/states/productListState";
+import {
+	Heading,
+	ProductContainer,
+	ProductList,
+	ProductSection,
+} from "@/styles/ProductListStyle";
 import { Common } from "@/styles/common";
 import { axiosInstance, searchProductList } from "@/utils";
 import styled from "@emotion/styled";
@@ -63,7 +63,6 @@ function Index() {
 			const { data } = await axiosInstance.get(
 				`/products?page=${pageParam}&limit=4`,
 			);
-
 			return data;
 		} catch (error) {
 			console.error("Error fetching products:", error);
@@ -94,7 +93,6 @@ function Index() {
 	const {
 		data: categoryFilterData,
 		error: categoryFilterError,
-		isLoading: categoryFilterLoading,
 		isError: categoryFilterIsError,
 	} = useCategoryFilterProductList({
 		resource: "products",
@@ -132,7 +130,7 @@ function Index() {
 		fetchSearchResult();
 	}, [searchKeyword]);
 
-	if (isLoading || categoryFilterLoading) {
+	if (isLoading) {
 		return <LoadingSpinner width="100vw" height="100vh" />;
 	}
 
@@ -151,7 +149,7 @@ function Index() {
 			<Helmet>
 				<title>Home - 모두의 오디오 MODI</title>
 			</Helmet>
-			<BannerSection showable={searchKeyword ? false : true}>
+			<BannerSection showable={!searchKeyword}>
 				<div>
 					<img src="/banner.svg" alt="배너 이미지" />
 				</div>
@@ -161,15 +159,17 @@ function Index() {
 				<SearchBar
 					onClick={handleSearchKeyword}
 					searchRef={searchRef}
-					showable={searchKeyword ? true : false}
+					showable={!!searchKeyword}
 				/>
 				<FilterContainer>
 					<FilterButton type="submit">인기순</FilterButton>
 					<FilterButton type="submit">최신순</FilterButton>
-					<FilterSelect showable={!searchKeyword ? true : false}>
+					<FilterSelect showable={!searchKeyword}>
 						<select
 							value={categoryValue}
-							onChange={(e) => setCategoryValue(e.target.value)}
+							onChange={(e) => {
+								setCategoryValue(e.target.value);
+							}}
 						>
 							<option value="none" disabled hidden>
 								장르 선택
@@ -194,15 +194,13 @@ function Index() {
 							searchedProductList.length === 0 ? (
 								<span className="emptyList">해당하는 상품이 없습니다.</span>
 							) : (
-								searchedProductList.map((product) => {
-									return (
-										<ProductListItem
-											key={product._id}
-											product={product}
-											bookmark
-										/>
-									);
-								})
+								searchedProductList.map((product) => (
+									<ProductListItem
+										key={product._id}
+										product={product}
+										bookmark
+									/>
+								))
 							)
 						) : !searchKeyword &&
 						  categoryValue !== "all" &&
@@ -210,26 +208,18 @@ function Index() {
 							fetchedFilterProductList.length === 0 ? (
 								<span className="emptyList">해당하는 상품이 없습니다.</span>
 							) : (
-								fetchedFilterProductList.map((product: Product) => {
-									return (
-										<ProductListItem
-											key={product._id}
-											product={product}
-											bookmark
-										/>
-									);
-								})
-							)
-						) : (
-							fetchedProductList?.map((product: Product) => {
-								return (
+								fetchedFilterProductList.map((product: Product) => (
 									<ProductListItem
 										key={product._id}
 										product={product}
 										bookmark
 									/>
-								);
-							})
+								))
+							)
+						) : (
+							fetchedProductList?.map((product: Product) => (
+								<ProductListItem key={product._id} product={product} bookmark />
+							))
 						)}
 					</ProductList>
 					<button
