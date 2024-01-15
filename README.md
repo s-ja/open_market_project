@@ -4,7 +4,7 @@
 
 ![team16](./open-market/public/logo/logo2.svg)
 
-# 모두의 오디오 : MODI
+# [모두의 오디오 : MODI](https://github.com/techitPlus-FE-team3/open_market_projerct)
 
 ### 테킷 플러스 프론트엔드 1기
 ### 오픈마켓 프로젝트 : TEAM IP3
