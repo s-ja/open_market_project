@@ -4,12 +4,6 @@ import {
 	FilterSelect,
 } from "@/components/FilterComponent";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import {
-	Heading,
-	ProductContainer,
-	ProductList,
-	ProductSection,
-} from "@/styles/ProductListStyle";
 import { ProductListItem } from "@/components/ProductListIComponent";
 import SearchBar from "@/components/SearchBar";
 import { useCategoryFilterProductList } from "@/hooks/useCategoryFilterProductList";
@@ -18,6 +12,12 @@ import {
 	categoryValueState,
 	searchKeywordState,
 } from "@/states/productListState";
+import {
+	Heading,
+	ProductContainer,
+	ProductList,
+	ProductSection,
+} from "@/styles/ProductListStyle";
 import { Common } from "@/styles/common";
 import { axiosInstance, searchProductList } from "@/utils";
 import styled from "@emotion/styled";
@@ -33,14 +33,14 @@ interface bannerProps {
 const BannerSection = styled.section<bannerProps>`
 	display: ${(props) => (props.showable ? "block" : "none")};
 	width: 100%;
-	height: 400px;
+	height: auto;
 	background-color: ${Common.colors.black};
-	div {
-		width: 1440px;
-		margin: 0 auto;
-		img {
-			object-fit: cover;
-		}
+	padding-top: 80px;
+	video {
+		width: 100%;
+		height: 500px;
+		object-fit: cover;
+		aspect-ratio: 16 / 9;
 	}
 `;
 
@@ -152,9 +152,10 @@ function Index() {
 				<title>Home - 모두의 오디오 MODI</title>
 			</Helmet>
 			<BannerSection showable={searchKeyword ? false : true}>
-				<div>
-					<img src="/banner.svg" alt="배너 이미지" />
-				</div>
+				<video autoPlay loop muted>
+					<source src="/videos/mainVideo.mp4" type="video/mp4" />
+					메인 영상 배너
+				</video>
 			</BannerSection>
 			<ProductSection isIndex={!searchKeyword}>
 				<Heading>메인페이지</Heading>
