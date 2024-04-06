@@ -51,7 +51,8 @@ function MusicPlayer({ soundFile, showable }: MusicPlayerProps) {
 
 	function onChange(e: ChangeEvent<HTMLInputElement>) {
 		const target = e.target as HTMLInputElement;
-		audio.currentTime = (audio.duration / 100) * parseInt(target.value);
+		audio.currentTime =
+			(+soundFile.duration!.toFixed(2) / 100) * parseInt(target.value);
 		setPercentage(parseInt(target.value));
 	}
 
@@ -71,22 +72,28 @@ function MusicPlayer({ soundFile, showable }: MusicPlayerProps) {
 
 	function getCurrentDuration(e: SyntheticEvent<HTMLAudioElement>) {
 		const percent = (
-			(e.currentTarget.currentTime / e.currentTarget.duration!) *
+			(e.currentTarget.currentTime / +soundFile.duration!) *
 			100
 		).toFixed(2);
 		const time = e.currentTarget.currentTime;
 
 		setPercentage(+percent);
-		setCurrentTime(parseInt(time.toFixed(2)));
+		setCurrentTime(+time.toFixed(2));
 	}
 
 	useEffect(() => {
-		if (percentage === 100) {
-			setTimeout(() => {
+		if (audio) {
+			const handleAudioEnd = () => {
 				setIsPlaying(false);
 				setPercentage(0);
 				audio.currentTime = 0;
-			}, 1000);
+			};
+
+			audio.addEventListener("ended", handleAudioEnd);
+
+			return () => {
+				audio.removeEventListener("ended", handleAudioEnd);
+			};
 		}
 	}, [percentage]);
 
