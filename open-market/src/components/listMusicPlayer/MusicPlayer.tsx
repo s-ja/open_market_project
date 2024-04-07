@@ -1,18 +1,21 @@
 import ControlPanel from "@/components/listMusicPlayer/ControlPanel";
 import PlayerSlider from "@/components/listMusicPlayer/PlayerSlider";
+import { currentAudioIdState } from "@/states/audioPlayerState";
 import { Common } from "@/styles/common";
 import styled from "@emotion/styled";
 import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import {
-	ChangeEvent,
-	SyntheticEvent,
-	useEffect,
-	useRef,
-	useState,
+  ChangeEvent,
+  SyntheticEvent,
+  useEffect,
+  useRef,
+  useState,
 } from "react";
+import { useRecoilState } from "recoil";
 
 interface MusicPlayerProps {
+	audioId: number;
 	soundFile: ProductFiles;
 	showable?: boolean;
 }
@@ -39,7 +42,10 @@ const PlayButton = styled.button`
 	border: none;
 `;
 
-function MusicPlayer({ soundFile, showable }: MusicPlayerProps) {
+function MusicPlayer({ soundFile, audioId, showable }: MusicPlayerProps) {
+	const [currentAudioId, setCurrentAudioId] =
+		useRecoilState(currentAudioIdState);
+
 	const [percentage, setPercentage] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [duration, setDuration] = useState(0);
@@ -57,16 +63,22 @@ function MusicPlayer({ soundFile, showable }: MusicPlayerProps) {
 	}
 
 	function handlePlayAndPauseMusic() {
+		if (!audio) return;
 		audio.volume = 0.1;
 
-		if (!isPlaying) {
+		if (currentAudioId === audioId) {
+			if (isPlaying) {
+				setCurrentAudioId(null);
+				setIsPlaying(false);
+				audio.pause();
+			} else {
+				setIsPlaying(true);
+				audio.play();
+			}
+		} else {
+			setCurrentAudioId(audioId);
 			setIsPlaying(true);
 			audio.play();
-		}
-
-		if (isPlaying) {
-			setIsPlaying(false);
-			audio.pause();
 		}
 	}
 
@@ -96,6 +108,28 @@ function MusicPlayer({ soundFile, showable }: MusicPlayerProps) {
 			};
 		}
 	}, [percentage]);
+
+	useEffect(() => {
+		if (!audio) return;
+
+		if (isPlaying) {
+			audio.play();
+		} else {
+			audio.pause();
+		}
+	}, [isPlaying, audioRef]);
+
+	useEffect(() => {
+		if (audio && currentAudioId !== audioId) {
+			audio.pause();
+		}
+	}, [currentAudioId, audioId]);
+
+	useEffect(() => {
+		if (currentAudioId !== audioId && isPlaying) {
+			setIsPlaying(false);
+		}
+	}, [currentAudioId, audioId, isPlaying]);
 
 	return (
 		<PlayerContainer showable={showable}>
