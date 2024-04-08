@@ -1,16 +1,16 @@
-import ControlPanel from "@/components/listMusicPlayer/ControlPanel";
-import PlayerSlider from "@/components/listMusicPlayer/PlayerSlider";
+import { ListControlPanel } from "@/components/audioPlayer/ControlPanel";
+import { ListPlayerSlider } from "@/components/audioPlayer/PlayerSlider";
 import { currentAudioIdState } from "@/states/audioPlayerState";
 import { Common } from "@/styles/common";
 import styled from "@emotion/styled";
 import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import {
-  ChangeEvent,
-  SyntheticEvent,
-  useEffect,
-  useRef,
-  useState,
+	ChangeEvent,
+	SyntheticEvent,
+	useEffect,
+	useRef,
+	useState,
 } from "react";
 import { useRecoilState } from "recoil";
 
@@ -140,7 +140,7 @@ function MusicPlayer({ soundFile, audioId, showable }: MusicPlayerProps) {
 					<PlayArrowIcon fontSize="large" />
 				)}
 			</PlayButton>
-			<PlayerSlider
+			<ListPlayerSlider
 				onChange={onChange}
 				percentage={percentage}
 				showable={showable}
@@ -153,7 +153,7 @@ function MusicPlayer({ soundFile, audioId, showable }: MusicPlayerProps) {
 				}}
 				src={soundFile?.path}
 			/>
-			<ControlPanel
+			<ListControlPanel
 				duration={duration}
 				currentTime={currentTime}
 				showable={showable}

@@ -80,7 +80,82 @@ const SliderContainer = styled.div<DisplayProps>`
 	}
 `;
 
-function PlayerSlider({
+const DetailSliderContainer = styled.div`
+	width: 100%;
+	height: auto;
+	background-color: transparent;
+	position: absolute;
+	bottom: -9px;
+	right: 0;
+
+	/*  Hide Original */
+	.range {
+		appearance: none;
+		margin: 0 auto;
+		background-color: ${Common.colors.gray2};
+		width: 100%;
+		height: 3px;
+		opacity: 0;
+		border-radius: 10px;
+		cursor: pointer;
+	}
+
+	.sliderContainer {
+		--progress-bar-height: 3px;
+		position: relative;
+		width: 100%;
+	}
+
+	.sliderContainer::before {
+		content: "";
+		background-color: ${Common.colors.gray};
+		width: 100%;
+		height: 3px;
+		display: block;
+		position: absolute;
+		border-radius: 10px;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		pointer-events: none;
+		opacity: 1;
+	}
+
+	/* Custom Progress Bar */
+	.progressBarCover {
+		background-color: ${Common.colors.primary};
+		width: 80%;
+		height: 3px;
+		display: block;
+		position: absolute;
+		border-radius: 10px;
+		top: 50%;
+		transform: translateY(-50%);
+		z-index: 1;
+		user-select: none;
+		pointer-events: none;
+	}
+
+	/* thumb */
+	.range::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		background-color: white;
+		width: 20px;
+		height: 20px;
+	}
+
+	.thumb {
+		z-index: 10;
+		position: absolute;
+		border-radius: 50%;
+		top: 50%;
+		transform: translate(0%, -50%);
+		pointer-events: none;
+		user-select: none;
+	}
+`;
+
+export function ListPlayerSlider({
 	onChange,
 	percentage,
 	showable,
@@ -139,4 +214,59 @@ function PlayerSlider({
 	);
 }
 
-export default PlayerSlider;
+export function DetailPlayerSlider({
+	onChange,
+	percentage,
+}: {
+	onChange: ChangeEventHandler;
+	percentage: number;
+}) {
+	const [position, setPosition] = useState(0);
+	const [marginLeft, setMarginLeft] = useState(0);
+	const [progressBarWidth, setProgressBarWidth] = useState(0);
+
+	const rangeRef = useRef(null);
+	const thumbRef = useRef(null);
+
+	useEffect(() => {
+		const rangeWidth = (rangeRef.current! as Element).getBoundingClientRect()
+			.width;
+		const thumbWidth = (thumbRef.current! as Element).getBoundingClientRect()
+			.width;
+		const centerThumb = (thumbWidth / 100) * percentage * -1;
+		const centerProgressBar =
+			thumbWidth +
+			(rangeWidth / 100) * percentage -
+			(thumbWidth / 100) * percentage;
+		setPosition(percentage);
+		setMarginLeft(centerThumb);
+		setProgressBarWidth(centerProgressBar);
+	}, [percentage]);
+
+	return (
+		<DetailSliderContainer>
+			<div className="sliderContainer">
+				<div
+					className="progressBarCover"
+					style={{ width: `${progressBarWidth}px` }}
+				></div>
+				<div
+					className="thumb"
+					ref={thumbRef}
+					style={{
+						left: `${position}%`,
+						marginLeft: `${marginLeft}px`,
+					}}
+				></div>
+				<input
+					type="range"
+					value={position}
+					ref={rangeRef}
+					step={0.01}
+					className="range"
+					onChange={onChange}
+				/>
+			</div>
+		</DetailSliderContainer>
+	);
+}

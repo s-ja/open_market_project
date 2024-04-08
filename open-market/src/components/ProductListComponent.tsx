@@ -1,4 +1,4 @@
-import MusicPlayer from "@/components/listMusicPlayer/MusicPlayer";
+import MusicPlayer from "@/components/audioPlayer/MusicPlayer";
 import { Common } from "@/styles/common";
 import { numberWithComma } from "@/utils";
 import styled from "@emotion/styled";
