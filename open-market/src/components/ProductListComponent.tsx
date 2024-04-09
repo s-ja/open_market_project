@@ -1,4 +1,4 @@
-import MusicPlayer from "@/components/listMusicPlayer/MusicPlayer";
+import MusicPlayer from "@/components/audioPlayer/MusicPlayer";
 import { Common } from "@/styles/common";
 import { numberWithComma } from "@/utils";
 import styled from "@emotion/styled";
@@ -129,7 +129,11 @@ export function ProductListItem({ product, bookmark }: ProductItemProps) {
 				/>
 				<span title={product.name}>{product.name}</span>
 			</StyledLink>
-			<MusicPlayer soundFile={product.extra?.soundFile!} showable />
+			<MusicPlayer
+				soundFile={product.extra?.soundFile!}
+				audioId={product?._id}
+				showable
+			/>
 			{"image" in product ? (
 				<a
 					href={`${API_KEY}/files/download/${product?.extra?.soundFile.name}?name=${product?.extra?.soundFile.originalname}`}
@@ -168,7 +172,10 @@ export function UserProductListItem({ product }: { product: Product }) {
 				/>
 				<span title={product?.name}>{product?.name}</span>
 			</StyledTitleSpan>
-			<MusicPlayer soundFile={product.extra?.soundFile!} />
+			<MusicPlayer
+				soundFile={product.extra?.soundFile!}
+				audioId={product?._id}
+			/>
 			<StyledElementSpan>
 				판매 개수: <span>{product?.buyQuantity}</span>
 			</StyledElementSpan>

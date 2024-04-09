@@ -4,7 +4,7 @@ import {
 	FilterSelect,
 } from "@/components/FilterComponent";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { ProductListItem } from "@/components/ProductListIComponent";
+import { ProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
 import { useCategoryFilterProductList } from "@/hooks/useCategoryFilterProductList";
 import { codeState } from "@/states/categoryState";

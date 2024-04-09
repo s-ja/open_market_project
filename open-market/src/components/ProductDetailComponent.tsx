@@ -3,12 +3,20 @@ import {
 	DetailBadgeContainer,
 } from "@/components/ProductDetailBadgeComponent";
 import { ShowStarRating } from "@/components/ReplyComponent";
+import { DetailControlPanel } from "@/components/audioPlayer/ControlPanel";
+import { DetailPlayerSlider } from "@/components/audioPlayer/PlayerSlider";
 import { Common } from "@/styles/common";
 import { numberWithComma } from "@/utils";
 import styled from "@emotion/styled";
 import StarIcon from "@mui/icons-material/Star";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
-import { useRef, useState } from "react";
+import {
+	ChangeEvent,
+	SyntheticEvent,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 
 interface DetailProps {
 	product: Product | undefined;
@@ -22,6 +30,7 @@ const ProductDetailArticle = styled.article`
 	height: 400px;
 	margin: 0 auto;
 	padding: ${Common.space.spacingXl};
+	position: relative;
 	display: flex;
 	flex-flow: row nowrap;
 	align-items: center;
@@ -174,10 +183,33 @@ function ProductDetailComponent({
 	createdAt,
 }: DetailProps) {
 	const audioRef = useRef(null);
+	const [percentage, setPercentage] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
+	const [currentTime, setCurrentTime] = useState(0);
 	const audio = audioRef.current! as HTMLAudioElement;
 
+	function onChange(e: ChangeEvent<HTMLInputElement>) {
+		const target = e.target as HTMLInputElement;
+		audio.currentTime =
+			(+product?.extra?.soundFile?.duration?.toFixed(2)! / 100) *
+			parseInt(target.value);
+		setPercentage(parseInt(target.value));
+	}
+
+	function getCurrentDuration(e: SyntheticEvent<HTMLAudioElement>) {
+		const percent = (
+			(e.currentTarget.currentTime / +product?.extra?.soundFile.duration!) *
+			100
+		).toFixed(2);
+		const time = e.currentTarget.currentTime;
+
+		setPercentage(+percent);
+		setCurrentTime(+time.toFixed(2));
+	}
+
 	function handlePlayAndPauseMusic() {
+		const audio = audioRef.current! as HTMLAudioElement;
+		if (!audio) return;
 		audio.volume = 0.1;
 
 		if (!isPlaying) {
@@ -190,8 +222,26 @@ function ProductDetailComponent({
 			audio.pause();
 		}
 	}
+
+	useEffect(() => {
+		if (audio) {
+			const handleAudioEnd = () => {
+				setIsPlaying(false);
+				setPercentage(0);
+				audio.currentTime = 0;
+			};
+
+			audio.addEventListener("ended", handleAudioEnd);
+
+			return () => {
+				audio.removeEventListener("ended", handleAudioEnd);
+			};
+		}
+	}, [percentage]);
+
 	return (
 		<ProductDetailArticle>
+			<DetailPlayerSlider onChange={onChange} percentage={percentage} />
 			<ProductMediaContainer>
 				<img
 					src={product?.mainImages[0].path}
@@ -206,8 +256,15 @@ function ProductDetailComponent({
 						play
 					</button>
 				)}
-
-				<audio src={product?.extra?.soundFile?.path!} ref={audioRef} />
+				<audio
+					src={product?.extra?.soundFile?.path!}
+					ref={audioRef}
+					onTimeUpdate={getCurrentDuration}
+				/>
+				<DetailControlPanel
+					duration={+product?.extra?.soundFile?.duration?.toFixed(2)!}
+					currentTime={currentTime}
+				/>
 			</ProductMediaContainer>
 			<ProductDetailInfo>
 				<span className="title">{product?.name}</span>

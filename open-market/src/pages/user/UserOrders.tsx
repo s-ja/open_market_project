@@ -6,7 +6,7 @@ import {
 	ProductList,
 	ProductSection,
 } from "@/styles/ProductListStyle";
-import { ProductListItem } from "@/components/ProductListIComponent";
+import { ProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
