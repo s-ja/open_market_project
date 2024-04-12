@@ -10,12 +10,10 @@ import {
 	AccountCircle,
 	ExitToApp,
 	FileUpload,
-	Notifications,
 	Search,
 } from "@mui/icons-material";
 import {
 	AppBar,
-	Badge,
 	Button,
 	CircularProgress,
 	IconButton,
@@ -115,14 +113,6 @@ const UploadButton = styled(Button)`
 	}
 `;
 
-const NotificationButton = styled(IconButton)`
-	color: ${Common.colors.white};
-
-	& > .MuiBadge-root :hover {
-		color: ${Common.colors.emphasize};
-	}
-`;
-
 const UserButton = styled(Button)`
 	color: ${Common.colors.white};
 	&:hover {
@@ -184,10 +174,6 @@ function Header() {
 	function handleSearchClick() {
 		setSearchKeyword(searchInput);
 		setSearchInput("");
-	}
-
-	function handleNotificationsMenuOpen(event: React.MouseEvent<HTMLElement>) {
-		setNotificationAnchorEl(event.currentTarget);
 	}
 
 	function handleProfileMenuOpen(event: React.MouseEvent<HTMLElement>) {
@@ -279,11 +265,6 @@ function Header() {
 							업로드
 						</UploadButton>
 
-						<NotificationButton onClick={handleNotificationsMenuOpen}>
-							<Badge badgeContent={1}>
-								<Notifications />
-							</Badge>
-						</NotificationButton>
 						<Menu
 							anchorEl={notificationAnchorEl}
 							open={Boolean(notificationAnchorEl)}
