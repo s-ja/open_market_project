@@ -4,7 +4,7 @@ import {
 } from "@/components/ProductDetailBadgeComponent";
 import { ShowStarRating } from "@/components/ReplyComponent";
 import { DetailControlPanel } from "@/components/audioPlayer/ControlPanel";
-import { DetailPlayerSlider } from "@/components/audioPlayer/PlayerSlider";
+import PlayerSlider from "@/components/audioPlayer/PlayerSlider";
 import { Common } from "@/styles/common";
 import { numberWithComma } from "@/utils";
 import styled from "@emotion/styled";
@@ -241,7 +241,12 @@ function ProductDetailComponent({
 
 	return (
 		<ProductDetailArticle>
-			<DetailPlayerSlider onChange={onChange} percentage={percentage} />
+			<PlayerSlider
+				onChange={onChange}
+				percentage={percentage}
+				showable
+				isDetail
+			/>
 			<ProductMediaContainer>
 				<img
 					src={product?.mainImages[0].path}

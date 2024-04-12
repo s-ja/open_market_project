@@ -1,5 +1,5 @@
 import { ListControlPanel } from "@/components/audioPlayer/ControlPanel";
-import { ListPlayerSlider } from "@/components/audioPlayer/PlayerSlider";
+import PlayerSlider from "@/components/audioPlayer/PlayerSlider";
 import { currentAudioIdState } from "@/states/audioPlayerState";
 import { Common } from "@/styles/common";
 import styled from "@emotion/styled";
@@ -140,7 +140,7 @@ function MusicPlayer({ soundFile, audioId, showable }: MusicPlayerProps) {
 					<PlayArrowIcon fontSize="large" />
 				)}
 			</PlayButton>
-			<ListPlayerSlider
+			<PlayerSlider
 				onChange={onChange}
 				percentage={percentage}
 				showable={showable}
