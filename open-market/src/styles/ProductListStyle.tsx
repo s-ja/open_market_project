@@ -20,7 +20,7 @@ export const Heading = styled.h2`
 export const ProductSection = styled.section<indexProps>`
 	width: 1160px;
 	margin: 0 auto;
-	padding: ${Common.space.spacingLg};
+	padding-bottom: ${Common.space.spacingLg};
 	padding-top: ${(props) =>
 		props.isIndex ? `${Common.space.spacingXl}` : "100px"};
 	display: flex;
