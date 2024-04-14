@@ -10,7 +10,7 @@ import ReplyListItem, {
 } from "@/components/ReplyComponent";
 import { currentUserState } from "@/states/authState";
 import { codeState } from "@/states/categoryState";
-import { Heading } from "@/styles/ProductListStyle";
+import { Heading, MoreButton } from "@/styles/ProductListStyle";
 import { axiosInstance, debounce, formatDate } from "@/utils";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ModeCommentIcon from "@mui/icons-material/ModeComment";
@@ -40,6 +40,11 @@ function ProductDetail() {
 	const [order, setOrder] = useState<Order>();
 	const [genre, setGenre] = useState<string>();
 	const [createdAt, setCreatedAt] = useState<string>();
+
+	const [allReplies, setAllReplies] = useState<Reply[]>([]);
+	const [displayReplies, setDisplayReplies] = useState<Reply[]>([]);
+	const [currentPage, setCurrentPage] = useState(1);
+	const REPLIES_PER_PAGE = 4;
 
 	const [rating, setRating] = useState(0);
 	const [ratingValue, setRatingValue] = useState<number>(3);
@@ -107,6 +112,16 @@ function ProductDetail() {
 		return +_.meanBy(product.replies, "rating").toFixed(2) || 0;
 	}
 
+	function handleMoreReplies() {
+		const newPage = currentPage + 1;
+		const newReplies = allReplies!.slice(
+			currentPage * REPLIES_PER_PAGE,
+			newPage * REPLIES_PER_PAGE,
+		);
+		setDisplayReplies((prev) => [...prev, ...newReplies]);
+		setCurrentPage(newPage);
+	}
+
 	useEffect(() => {
 		if (productId === null || productId === "") {
 			return navigate("/err", { replace: true });
@@ -120,6 +135,9 @@ function ProductDetail() {
 		);
 		if (product) {
 			setIsLoading(false);
+			if (product.replies) {
+				setAllReplies(product.replies);
+			}
 			if (sessionHistory.length > 5) {
 				sessionHistory.pop();
 			}
@@ -130,6 +148,12 @@ function ProductDetail() {
 			sessionStorage.setItem("historyList", JSON.stringify(sessionHistory));
 		}
 	}, [product]);
+
+	useEffect(() => {
+		if (allReplies) {
+			setDisplayReplies(allReplies.slice(0, currentPage * REPLIES_PER_PAGE));
+		}
+	}, [allReplies]);
 
 	useEffect(() => {
 		function translateCodeToValue(code: string) {
@@ -233,15 +257,24 @@ function ProductDetail() {
 					)}
 				</div>
 				<ul>
-					{product?.replies?.length === 0 ? (
+					{allReplies !== undefined && allReplies?.length === 0 ? (
 						<p>댓글이 없습니다.</p>
 					) : (
-						product?.replies?.map((reply) => {
+						displayReplies?.map((reply) => {
 							return <ReplyListItem reply={reply} />;
 						})
 					)}
 				</ul>
-				<button className="moreButton">더보기</button>
+				{allReplies !== undefined &&
+				currentPage * REPLIES_PER_PAGE < allReplies?.length ? (
+					<MoreButton onClick={handleMoreReplies} isReply>
+						더보기
+					</MoreButton>
+				) : (
+					<MoreButton isReply disabled isDisable>
+						더보기
+					</MoreButton>
+				)}
 			</ReplyContainer>
 		</section>
 	);

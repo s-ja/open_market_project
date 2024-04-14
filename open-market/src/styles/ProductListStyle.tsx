@@ -13,6 +13,10 @@ interface indexProps {
 	isIndex?: boolean;
 }
 
+interface replyProps {
+	isReply?: boolean;
+}
+
 export const Heading = styled.h2`
 	display: ${Common.a11yHidden};
 `;
@@ -30,7 +34,7 @@ export const ProductSection = styled.section<indexProps>`
 	gap: ${Common.space.spacingMd};
 `;
 
-export const ProductContainer = styled.div<HeightProps & disableProps>`
+export const ProductContainer = styled.div<HeightProps>`
 	width: 1160px;
 	min-height: ${(props) => props.height};
 	padding: ${Common.space.spacingLg} 0 5px 0;
@@ -46,28 +50,6 @@ export const ProductContainer = styled.div<HeightProps & disableProps>`
 		padding-top: 40px;
 		font-weight: ${Common.font.weight.regular};
 	}
-
-	.moreButton {
-		width: 100px;
-		height: 40px;
-		position: relative;
-		background-color: transparent;
-		border: none;
-		font-weight: ${Common.font.weight.regular};
-
-		&::after {
-			content: "";
-			position: absolute;
-			top: 50%;
-			transform: translateY(-30%);
-			right: 12px;
-			border-bottom: solid 8px transparent;
-			border-top: solid 8px
-				${(props) => (props.isDisable ? `${Common.colors.gray}` : `black`)};
-			border-left: solid 8px transparent;
-			border-right: solid 8px transparent;
-		}
-	}
 `;
 
 export const ProductList = styled.ul`
@@ -75,4 +57,32 @@ export const ProductList = styled.ul`
 	flex-flow: column nowrap;
 	align-items: center;
 	gap: ${Common.space.spacingLg};
+`;
+
+export const MoreButton = styled.button<disableProps & replyProps>`
+	width: 100px;
+	height: 40px;
+	position: relative;
+	background-color: transparent;
+	${(props) =>
+		props.isReply
+			? `left: 50%;
+	       transform: translateX(-60%);`
+			: ``}
+	border: none;
+	font-weight: ${Common.font.weight.regular};
+	cursor: ${(props) => (props.isDisable ? `not-allowed` : `pointer`)};
+
+	&::after {
+		content: "";
+		position: absolute;
+		top: 50%;
+		transform: translateY(-30%);
+		right: 12px;
+		border-bottom: solid 8px transparent;
+		border-top: solid 8px
+			${(props) => (props.isDisable ? `${Common.colors.gray}` : `black`)};
+		border-left: solid 8px transparent;
+		border-right: solid 8px transparent;
+	}
 `;

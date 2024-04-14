@@ -14,6 +14,7 @@ import {
 } from "@/states/productListState";
 import {
 	Heading,
+	MoreButton,
 	ProductContainer,
 	ProductList,
 	ProductSection,
@@ -186,10 +187,7 @@ function Index() {
 						</select>
 					</FilterSelect>
 				</FilterContainer>
-				<ProductContainer
-					height={searchKeyword ? "633px" : "400px"}
-					isDisable={!hasNextPage || isFetchingNextPage}
-				>
+				<ProductContainer height={searchKeyword ? "633px" : "400px"}>
 					<ProductList>
 						{searchKeyword && searchedProductList !== undefined ? (
 							searchedProductList.length === 0 ? (
@@ -233,17 +231,17 @@ function Index() {
 							})
 						)}
 					</ProductList>
-					<button
+					<MoreButton
 						type="submit"
-						className="moreButton"
 						ref={paginationButtonRef}
 						onClick={() => {
 							fetchNextPage();
 						}}
 						disabled={!hasNextPage || isFetchingNextPage}
+						isDisable={!hasNextPage || isFetchingNextPage}
 					>
 						더보기
-					</button>
+					</MoreButton>
 				</ProductContainer>
 			</ProductSection>
 		</>
