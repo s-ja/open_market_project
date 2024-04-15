@@ -1,6 +1,7 @@
 import MusicPlayer from "@/components/audioPlayer/MusicPlayer";
+import { currentUserState } from "@/states/authState";
 import { Common } from "@/styles/common";
-import { numberWithComma } from "@/utils";
+import { axiosInstance, numberWithComma } from "@/utils";
 import styled from "@emotion/styled";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
@@ -8,7 +9,10 @@ import DownloadIcon from "@mui/icons-material/Download";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { isAxiosError } from "axios";
+import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { useRecoilValue } from "recoil";
 
 const API_KEY = import.meta.env.VITE_API_SERVER;
 
@@ -115,7 +119,44 @@ const StyledElementSpan = styled.span`
 
 const StyledLink = StyledTitleSpan.withComponent(Link);
 
+async function postScrap(productId: number, userId: number) {
+	try {
+		axiosInstance
+			.post(`/bookmarks/`, {
+				user_id: userId,
+				product_id: productId,
+				memo: "",
+			})
+			.then(() => {
+				toast.success("북마크 성공 완료", {
+					ariaProps: {
+						role: "status",
+						"aria-live": "polite",
+					},
+				});
+			})
+			.catch((error) => {
+				if (isAxiosError(error)) {
+					if (error.response && error.response.status === 409) {
+						toast.error("이미 북마크된 상품입니다.", {
+							ariaProps: {
+								role: "status",
+								"aria-live": "polite",
+							},
+						});
+					} else {
+						console.error("알 수 없는 오류가 발생했습니다.", error.message);
+					}
+				}
+			});
+	} catch (error) {
+		console.error(error);
+	}
+}
+
 export function ProductListItem({ product, bookmark }: ProductItemProps) {
+	const currentUser = useRecoilValue(currentUserState);
+
 	return (
 		<ListItem key={product?._id}>
 			<StyledLink to={`/productdetail/${product._id}`}>
@@ -148,16 +189,24 @@ export function ProductListItem({ product, bookmark }: ProductItemProps) {
 			) : (
 				<></>
 			)}
-			<button type="submit" className="bookmark">
-				<ThemeProvider theme={theme}>
-					{bookmark ? (
-						<BookmarkIcon sx={{ color: `primary.main` }} />
-					) : (
-						<BookmarkBorderIcon sx={{ color: `primary.light` }} />
-					)}
-				</ThemeProvider>
-				<span>북마크</span>
-			</button>
+			{currentUser ? (
+				<button
+					type="submit"
+					className="bookmark"
+					onClick={() => postScrap(product._id, currentUser._id)}
+				>
+					<ThemeProvider theme={theme}>
+						{bookmark ? (
+							<BookmarkIcon sx={{ color: `primary.main` }} />
+						) : (
+							<BookmarkBorderIcon sx={{ color: `primary.light` }} />
+						)}
+					</ThemeProvider>
+					<span>북마크</span>
+				</button>
+			) : (
+				""
+			)}
 		</ListItem>
 	);
 }

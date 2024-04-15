@@ -5,8 +5,8 @@ import { Common } from "@/styles/common";
 import { axiosInstance } from "@/utils";
 import styled from "@emotion/styled";
 import Skeleton from "@mui/material/Skeleton";
-import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 
@@ -305,7 +305,7 @@ function MyPage() {
 						</Link>
 					)}
 					linkText="전체보기"
-					linkUrl="/"
+					linkUrl="/userbookmarks"
 				/>
 			)}
 			<MyPageList

@@ -44,6 +44,10 @@ const BannerSection = styled.section<bannerProps>`
 		aspect-ratio: 16 / 9;
 	}
 `;
+const getBookmarkData = async () => {
+	const { data } = await axiosInstance.get(`/bookmarks/`);
+	console.log(data, "sdafdsd");
+};
 
 function Index() {
 	const searchRef = useRef<HTMLInputElement>(null);
@@ -107,6 +111,9 @@ function Index() {
 			searchRef.current!.value.split(" ").join("").toLowerCase(),
 		);
 	}
+	useEffect(() => {
+		getBookmarkData();
+	}, []);
 
 	useEffect(() => {
 		if (category) {
