@@ -1,14 +1,15 @@
 import { FilterButton, FilterContainer } from "@/components/FilterComponent";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { UserProductListItem } from "@/components/ProductListComponent";
+import SearchBar from "@/components/SearchBar";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
 	Heading,
+	MoreButton,
 	ProductContainer,
 	ProductList,
 	ProductSection,
 } from "@/styles/ProductListStyle";
-import { UserProductListItem } from "@/components/ProductListComponent";
-import SearchBar from "@/components/SearchBar";
-import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
 	axiosInstance,
 	searchProductList,
@@ -154,10 +155,7 @@ function UserProducts() {
 							최신순
 						</FilterButton>
 					</FilterContainer>
-					<ProductContainer
-						height="633px"
-						isDisable={!hasNextPage || isFetchingNextPage}
-					>
+					<ProductContainer height="633px">
 						<ProductList>
 							{searchKeyword && searchedProductList?.length === 0 ? (
 								<span className="emptyList">해당하는 상품이 없습니다.</span>
@@ -178,9 +176,8 @@ function UserProducts() {
 								<span className="emptyList">판매 내역이 없습니다.</span>
 							)}
 						</ProductList>
-						<button
+						<MoreButton
 							type="submit"
-							className="moreButton"
 							ref={paginationButtonRef}
 							onClick={() => {
 								setSearchedProductList([]);
@@ -188,9 +185,10 @@ function UserProducts() {
 								fetchNextPage();
 							}}
 							disabled={!hasNextPage || isFetchingNextPage}
+							isDisable={!hasNextPage || isFetchingNextPage}
 						>
 							더보기
-						</button>
+						</MoreButton>
 					</ProductContainer>
 				</>
 			) : (
