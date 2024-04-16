@@ -40,6 +40,7 @@ function ProductDetail() {
 	const [order, setOrder] = useState<Order>();
 	const [genre, setGenre] = useState<string>();
 	const [createdAt, setCreatedAt] = useState<string>();
+	const [bookmark, setBookmark] = useState<Bookmark>();
 
 	const [allReplies, setAllReplies] = useState<Reply[]>([]);
 	const [displayReplies, setDisplayReplies] = useState<Reply[]>([]);
@@ -50,6 +51,19 @@ function ProductDetail() {
 	const [ratingValue, setRatingValue] = useState<number>(3);
 	const [replyContent, setReplyContent] = useState<string>();
 	const [__, setHover] = useState(-1);
+
+	async function fetchUserBookmarks(productId: string | undefined) {
+		try {
+			const response = await axiosInstance.get(
+				`/bookmarks/products/${productId}`,
+			);
+			if (response.status === 200) {
+				setBookmark(response.data.item);
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
 
 	async function fetchProduct(id: string) {
 		try {
@@ -127,6 +141,7 @@ function ProductDetail() {
 			return navigate("/err", { replace: true });
 		}
 		fetchProduct(productId!);
+		fetchUserBookmarks(productId);
 	}, []);
 
 	useEffect(() => {
@@ -191,6 +206,7 @@ function ProductDetail() {
 				product={product}
 				order={order}
 				currentUser={currentUser}
+				bookmark={bookmark}
 			/>
 			<ReplyContainer>
 				<h3>
