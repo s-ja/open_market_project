@@ -1,8 +1,9 @@
 import FormInput from "@/components/FormInput";
 import FunctionalButton from "@/components/FunctionalButton";
+import HelmetSetup from "@/components/HelmetSetup";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import SelectGenre from "@/components/SelectGenre";
 import Textarea from "@/components/Textarea";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { codeState } from "@/states/categoryState";
 import { Common } from "@/styles/common";
@@ -15,7 +16,6 @@ import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import { Radio, RadioProps } from "@mui/material";
 import { styled as muiStyled } from "@mui/system";
 import React, { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import toast, { Renderable, Toast, ValueFunction } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -303,9 +303,11 @@ function ProductEdit() {
 
 	return (
 		<ProductEditSection>
-			<Helmet>
-				<title>Edit Product - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup
+				title="Edit Product"
+				description="음원 게시물 수정 페이지"
+				url={`productedit/${productId}`}
+			/>
 			<h2 className="a11yHidden">상품 수정</h2>
 			<form encType="multipart/form-data" className="PostFormWrapper">
 				<FormTopLayout>

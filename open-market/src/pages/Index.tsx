@@ -3,6 +3,7 @@ import {
 	FilterContainer,
 	FilterSelect,
 } from "@/components/FilterComponent";
+import HelmetSetup from "@/components/HelmetSetup";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { ProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
@@ -24,7 +25,6 @@ import { axiosInstance, searchProductList } from "@/utils";
 import styled from "@emotion/styled";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { useRecoilState, useRecoilValue } from "recoil";
 
 interface bannerProps {
@@ -154,9 +154,7 @@ function Index() {
 
 	return (
 		<>
-			<Helmet>
-				<title>Home - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup title="Home" description="홈페이지" url="" />
 			<BannerSection showable={searchKeyword ? false : true}>
 				<video autoPlay loop muted>
 					<source src="/videos/mainVideo.mp4" type="video/mp4" />

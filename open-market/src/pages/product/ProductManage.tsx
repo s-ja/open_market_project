@@ -1,4 +1,5 @@
 import FunctionalButton from "@/components/FunctionalButton";
+import HelmetSetup from "@/components/HelmetSetup";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import Textarea from "@/components/Textarea";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
@@ -13,7 +14,6 @@ import { Radio, RadioProps } from "@mui/material";
 import { styled as muiStyled } from "@mui/system";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import toast from "react-hot-toast";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -268,9 +268,11 @@ function ProductManage() {
 
 	return (
 		<ProductManagementSection>
-			<Helmet>
-				<title>Management Product - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup
+				title="Manage Product"
+				description="판매 음원 관리"
+				url={`productmanage/${productId}`}
+			/>
 			<h2 className="a11yHidden">상품 관리</h2>
 			<div className="ProductInfoWrapper">
 				<UserProductListLink to={`/user/${currentUser!._id}/products`}>

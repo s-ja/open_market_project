@@ -1,4 +1,5 @@
 import AuthInput from "@/components/AuthInput";
+import HelmetSetup from "@/components/HelmetSetup";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { currentUserState } from "@/states/authState";
@@ -9,7 +10,6 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import Checkbox from "@mui/material/Checkbox";
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
@@ -352,9 +352,11 @@ function UserEdit() {
 
 	return (
 		<Backgroud>
-			<Helmet>
-				<title>Edit User - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup
+				title="Edit User"
+				description="회원 정보 수정"
+				url={`useredit/${currentUser!._id}`}
+			/>
 			<Title>회원정보 수정</Title>
 			<Form onSubmit={handleSubmit}>
 				<Fieldset>

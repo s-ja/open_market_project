@@ -1,3 +1,4 @@
+import HelmetSetup from "@/components/HelmetSetup";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ProductDetailExtraLink from "@/components/ProductDetailBadgeComponent";
 import ProductDetailComponent from "@/components/ProductDetailComponent";
@@ -19,7 +20,6 @@ import { Rating } from "@mui/material";
 import { AxiosError } from "axios";
 import _ from "lodash";
 import { SetStateAction, useEffect, useRef, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -174,9 +174,11 @@ function ProductDetail() {
 
 	return (
 		<section>
-			<Helmet>
-				<title>Product Detail - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup
+				title="Product Detail"
+				description="음원 상세 페이지"
+				url={`productdetail/${productId}`}
+			/>
 			<Heading>상세 페이지</Heading>
 
 			<ProductDetailComponent

@@ -1,4 +1,5 @@
 import { FilterButton, FilterContainer } from "@/components/FilterComponent";
+import HelmetSetup from "@/components/HelmetSetup";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { ProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
@@ -17,7 +18,6 @@ import {
 } from "@/utils";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { Helmet } from "react-helmet-async";
 
 function UserOrders() {
 	const searchRef = useRef<HTMLInputElement>(null);
@@ -92,9 +92,11 @@ function UserOrders() {
 	}
 	return (
 		<ProductSection>
-			<Helmet>
-				<title>My Orders - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup
+				title="My Orders"
+				description="주문 내역 조회"
+				url="orders"
+			/>
 			<Heading>구매내역</Heading>
 			<SearchBar onClick={handleSearchKeyword} searchRef={searchRef} showable />
 			<FilterContainer>

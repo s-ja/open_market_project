@@ -1,11 +1,11 @@
 import AuthInput from "@/components/AuthInput";
+import HelmetSetup from "@/components/HelmetSetup";
 import { currentUserState } from "@/states/authState";
 import { Common } from "@/styles/common";
 import { axiosInstance, debounce } from "@/utils";
 import styled from "@emotion/styled";
 import axios from "axios";
 import React, { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
@@ -161,9 +161,7 @@ function SignIn() {
 
 	return (
 		<Backgroud>
-			<Helmet>
-				<title>Sign In - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup title="Sign In" description="로그인" url="signin" />
 			<Logo>
 				<Link to="/">
 					<img src={logoImage} alt="모디 로고" />

@@ -1,4 +1,5 @@
 import FunctionalButton from "@/components/FunctionalButton";
+import HelmetSetup from "@/components/HelmetSetup";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import Textarea from "@/components/Textarea";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
@@ -9,7 +10,6 @@ import { axiosInstance, numberWithComma } from "@/utils";
 import styled from "@emotion/styled";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -247,9 +247,11 @@ function ProductPurchase() {
 
 	return (
 		<ProductPurchaseSection>
-			<Helmet>
-				<title>Order Product - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup
+				title="Order Product"
+				description="음원 구매 페이지"
+				url={`productpurchase/${productId}`}
+			/>
 			<h2 className="a11yHidden">상품 구매</h2>
 			<div className="ProductInfoWrapper">
 				<FormTopLayout>

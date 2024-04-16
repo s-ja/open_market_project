@@ -1,4 +1,5 @@
 import { FilterButton, FilterContainer } from "@/components/FilterComponent";
+import HelmetSetup from "@/components/HelmetSetup";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { UserProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
@@ -17,7 +18,6 @@ import {
 } from "@/utils";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Helmet } from "react-helmet-async";
 
 function sortByProfitProductList(list: Product[]) {
 	return list.sort((a, b) => b.buyQuantity * b.price - a.buyQuantity * a.price);
@@ -136,9 +136,11 @@ function UserProducts() {
 
 	return (
 		<ProductSection>
-			<Helmet>
-				<title>My Products - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup
+				title="My Products"
+				description="판매 음원 목록"
+				url="orders"
+			/>
 			<Heading>상품관리</Heading>
 			{userProductsInfo ? (
 				<>

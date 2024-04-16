@@ -1,15 +1,15 @@
 import AuthInput from "@/components/AuthInput";
+import HelmetSetup from "@/components/HelmetSetup";
 import { Common } from "@/styles/common";
 import { axiosInstance, debounce } from "@/utils";
 import styled from "@emotion/styled";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import Checkbox from "@mui/material/Checkbox";
+import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import toast from "react-hot-toast";
-import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 import logoImage from "/logo/logo1.svg";
 
@@ -392,7 +392,7 @@ function SignUp() {
 		}
 		const userObject = createUserObject();
 		signUpMutation.mutate(userObject);
-	};
+	}
 
 	useEffect(() => {
 		const accessToken = localStorage.getItem("accessToken");
@@ -423,9 +423,7 @@ function SignUp() {
 
 	return (
 		<Backgroud>
-			<Helmet>
-				<title>Sign Up - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup title="Sign Up" description="회원가입" url="signup" />
 			<Wrapper>
 				<Logo>
 					<Link to="/">
