@@ -3,6 +3,7 @@ import FunctionalButton from "@/components/FunctionalButton";
 import HelmetSetup from "@/components/HelmetSetup";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import SelectGenre from "@/components/SelectGenre";
+import { ProductEditSkeleton } from "@/components/SkeletonUI";
 import Textarea from "@/components/Textarea";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { codeState } from "@/states/categoryState";
@@ -297,10 +298,6 @@ function ProductEdit() {
 		}
 	}, [userProductInfo]);
 
-	if (isLoading) {
-		return <LoadingSpinner width="100vw" height="100vh" />;
-	}
-
 	return (
 		<ProductEditSection>
 			<HelmetSetup
@@ -309,187 +306,193 @@ function ProductEdit() {
 				url={`productedit/${productId}`}
 			/>
 			<h2 className="a11yHidden">상품 수정</h2>
-			<form encType="multipart/form-data" className="PostFormWrapper">
-				<FormTopLayout>
-					<PostImageWrapper>
-						<div className="ImageWrapper">
-							<input
-								type="file"
-								accept="*.jpg,*.png,*.jpeg,*.webp,*.avif"
-								onChange={(e: { target: { files: any } }) => {
-									setImageLoading(true);
-									uploadFile(e.target.files[0], setPostItem, "image")
-										.then(() => {
-											setImageLoading(false);
-										})
-										.catch((error) => {
-											console.error(error);
-											setImageLoading(false);
-										});
-								}}
-								className="PostImage"
-								name="photo"
-								id="photo"
-							/>
-							{imageLoading ? (
-								<LoadingSpinner width="300px" height="300px" upload />
-							) : postItem?.mainImages[0].path !== "" ? (
-								<img
-									className="UploadImage"
-									src={postItem?.mainImages[0].path}
-									alt={`${postItem?.name} 앨범 아트`}
+			{isLoading ? (
+				<ProductEditSkeleton />
+			) : (
+				<form encType="multipart/form-data" className="PostFormWrapper">
+					<FormTopLayout>
+						<PostImageWrapper>
+							<div className="ImageWrapper">
+								<input
+									type="file"
+									accept="*.jpg,*.png,*.jpeg,*.webp,*.avif"
+									onChange={(e: { target: { files: any } }) => {
+										setImageLoading(true);
+										uploadFile(e.target.files[0], setPostItem, "image")
+											.then(() => {
+												setImageLoading(false);
+											})
+											.catch((error) => {
+												console.error(error);
+												setImageLoading(false);
+											});
+									}}
+									className="PostImage"
+									name="photo"
+									id="photo"
 								/>
-							) : (
-								<div className="PostImageLabel">
-									<FileUploadIcon
-										style={{ color: "#D9D9D9", fontSize: "80px" }}
+								{imageLoading ? (
+									<LoadingSpinner width="300px" height="300px" upload />
+								) : postItem?.mainImages[0].path !== "" ? (
+									<img
+										className="UploadImage"
+										src={postItem?.mainImages[0].path}
+										alt={`${postItem?.name} 앨범 아트`}
 									/>
-									<label htmlFor="photo">커버 업로드</label>
-								</div>
-							)}
-						</div>
-					</PostImageWrapper>
-					<FormTopRightLayout>
-						<FormInput
-							name="title"
-							label="타이틀"
-							defaultValue={userProductInfo?.name}
-							handleFn={debounce((e: { target: { value: any } }) =>
-								setPostItem({ ...postItem, name: e.target.value }),
-							)}
-						/>
-						<FlexLayout>
-							<SelectGenre
-								id="genre"
-								value={userProductInfo?.extra?.category}
-								handleFn={(e) => {
-									setPostItem({
-										...postItem,
-										extra: { ...postItem.extra, category: e.target.value },
-									});
-								}}
-								category={category!}
-							/>
+								) : (
+									<div className="PostImageLabel">
+										<FileUploadIcon
+											style={{ color: "#D9D9D9", fontSize: "80px" }}
+										/>
+										<label htmlFor="photo">커버 업로드</label>
+									</div>
+								)}
+							</div>
+						</PostImageWrapper>
+						<FormTopRightLayout>
 							<FormInput
-								name="hashTag"
-								label="해시태그"
-								defaultValue={userProductInfo?.extra?.tags}
-								placeholder="해시태그를 ','(콤마)로 구분해주세요"
-								handleFn={debounce((e: React.ChangeEvent<HTMLInputElement>) => {
-									const tagsArray = e.target.value
-										.split(",")
-										.map((tag) => tag.replaceAll(" ", ""));
-									setPostItem({
-										...postItem,
-										extra: { ...postItem.extra, tags: tagsArray },
-									});
-								})}
-							/>
-						</FlexLayout>
-						<FlexLayout>
-							<Textarea
-								content={userProductInfo?.content}
-								placeholder="10글자 이상 입력해주세요."
-								onChange={debounce((e: { target: { value: any } }) =>
-									setPostItem({ ...postItem, content: e.target.value }),
+								name="title"
+								label="타이틀"
+								defaultValue={userProductInfo?.name}
+								handleFn={debounce((e: { target: { value: any } }) =>
+									setPostItem({ ...postItem, name: e.target.value }),
 								)}
 							/>
-							<PostAudioWrapper>
-								<div className="AudioWrapper">
-									<input
-										type="file"
-										accept="audio/*"
-										name="mp3"
-										className="PostAudio"
-										id="mp3"
-										onChange={(e: { target: { files: any } }) => {
-											setAudioLoading(true);
-											uploadFile(e.target.files[0], setPostItem, "soundFile")
-												.then(() => {
-													setAudioLoading(false);
-												})
-												.catch((error) => {
-													console.error(error);
-													setAudioLoading(false);
-												});
-										}}
-									/>
-									{audioLoading ? (
-										<LoadingSpinner width="211px" height="116px" upload />
-									) : postItem?.extra.soundFile.path !== "" ? (
-										<span className="UploadAudioFile">
-											{postItem?.extra.soundFile.name}
-										</span>
-									) : (
-										<div className="PostAudioLabel">
-											<FileUploadIcon
-												style={{ color: "#FF3821", fontSize: "20px" }}
-											/>
-											<label htmlFor="mp3">음원 업로드</label>
-										</div>
+							<FlexLayout>
+								<SelectGenre
+									id="genre"
+									value={userProductInfo?.extra?.category}
+									handleFn={(e) => {
+										setPostItem({
+											...postItem,
+											extra: { ...postItem.extra, category: e.target.value },
+										});
+									}}
+									category={category!}
+								/>
+								<FormInput
+									name="hashTag"
+									label="해시태그"
+									defaultValue={userProductInfo?.extra?.tags}
+									placeholder="해시태그를 ','(콤마)로 구분해주세요"
+									handleFn={debounce(
+										(e: React.ChangeEvent<HTMLInputElement>) => {
+											const tagsArray = e.target.value
+												.split(",")
+												.map((tag) => tag.replaceAll(" ", ""));
+											setPostItem({
+												...postItem,
+												extra: { ...postItem.extra, tags: tagsArray },
+											});
+										},
 									)}
-								</div>
-							</PostAudioWrapper>
-						</FlexLayout>
-					</FormTopRightLayout>
-				</FormTopLayout>
-				<FlexLayout>
-					<FormInput
-						name="price"
-						label="가격"
-						type="number"
-						defaultValue={userProductInfo?.price}
-						handleFn={debounce((e: { target: { value: number } }) => {
-							if (e.target.value < 0) {
-								e.target.value = 0;
-							}
-							setPostItem({
-								...postItem,
-								price: +e.target.value,
-							});
-						})}
-					/>
-					<ProductRadioButtonWrapper>
-						<span>공개여부</span>
-						<RadioButtonGroup>
-							<span>공개</span>
-							<StyledRadio
-								checked={postItem.show === true}
-								onChange={() =>
-									setPostItem((prevPostItem) => ({
-										...prevPostItem,
-										show: true,
-									}))
+								/>
+							</FlexLayout>
+							<FlexLayout>
+								<Textarea
+									content={userProductInfo?.content}
+									placeholder="10글자 이상 입력해주세요."
+									onChange={debounce((e: { target: { value: any } }) =>
+										setPostItem({ ...postItem, content: e.target.value }),
+									)}
+								/>
+								<PostAudioWrapper>
+									<div className="AudioWrapper">
+										<input
+											type="file"
+											accept="audio/*"
+											name="mp3"
+											className="PostAudio"
+											id="mp3"
+											onChange={(e: { target: { files: any } }) => {
+												setAudioLoading(true);
+												uploadFile(e.target.files[0], setPostItem, "soundFile")
+													.then(() => {
+														setAudioLoading(false);
+													})
+													.catch((error) => {
+														console.error(error);
+														setAudioLoading(false);
+													});
+											}}
+										/>
+										{audioLoading ? (
+											<LoadingSpinner width="211px" height="116px" upload />
+										) : postItem?.extra.soundFile.path !== "" ? (
+											<span className="UploadAudioFile">
+												{postItem?.extra.soundFile.name}
+											</span>
+										) : (
+											<div className="PostAudioLabel">
+												<FileUploadIcon
+													style={{ color: "#FF3821", fontSize: "20px" }}
+												/>
+												<label htmlFor="mp3">음원 업로드</label>
+											</div>
+										)}
+									</div>
+								</PostAudioWrapper>
+							</FlexLayout>
+						</FormTopRightLayout>
+					</FormTopLayout>
+					<FlexLayout>
+						<FormInput
+							name="price"
+							label="가격"
+							type="number"
+							defaultValue={userProductInfo?.price}
+							handleFn={debounce((e: { target: { value: number } }) => {
+								if (e.target.value < 0) {
+									e.target.value = 0;
 								}
-								value="true"
-							/>
-							<span>비공개</span>
-							<StyledRadio
-								checked={postItem.show === false}
-								onChange={() =>
-									setPostItem((prevPostItem) => ({
-										...prevPostItem,
-										show: false,
-									}))
-								}
-								value="false"
-							/>
-						</RadioButtonGroup>
-					</ProductRadioButtonWrapper>
-				</FlexLayout>
-				<FlexLayout right>
-					<FunctionalButton
-						secondary={true}
-						handleFn={handleEditCancel}
-						text="취소"
-					/>
-					<FunctionalButton
-						type="submit"
-						handleFn={handleEditProduct}
-						text="수정"
-					/>
-				</FlexLayout>
-			</form>
+								setPostItem({
+									...postItem,
+									price: +e.target.value,
+								});
+							})}
+						/>
+						<ProductRadioButtonWrapper>
+							<span>공개여부</span>
+							<RadioButtonGroup>
+								<span>공개</span>
+								<StyledRadio
+									checked={postItem.show === true}
+									onChange={() =>
+										setPostItem((prevPostItem) => ({
+											...prevPostItem,
+											show: true,
+										}))
+									}
+									value="true"
+								/>
+								<span>비공개</span>
+								<StyledRadio
+									checked={postItem.show === false}
+									onChange={() =>
+										setPostItem((prevPostItem) => ({
+											...prevPostItem,
+											show: false,
+										}))
+									}
+									value="false"
+								/>
+							</RadioButtonGroup>
+						</ProductRadioButtonWrapper>
+					</FlexLayout>
+					<FlexLayout right>
+						<FunctionalButton
+							secondary={true}
+							handleFn={handleEditCancel}
+							text="취소"
+						/>
+						<FunctionalButton
+							type="submit"
+							handleFn={handleEditProduct}
+							text="수정"
+						/>
+					</FlexLayout>
+				</form>
+			)}
 		</ProductEditSection>
 	);
 }

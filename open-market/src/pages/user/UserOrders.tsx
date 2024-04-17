@@ -1,8 +1,8 @@
 import { FilterButton, FilterContainer } from "@/components/FilterComponent";
 import HelmetSetup from "@/components/HelmetSetup";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import { ProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
+import { ProductListSkeleton } from "@/components/SkeletonUI";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
 	Heading,
@@ -82,10 +82,6 @@ function UserOrders() {
 		fetchSearchResult();
 	}, [searchKeyword]);
 
-	if (isLoading) {
-		return <LoadingSpinner width="100vw" height="100vh" />;
-	}
-
 	if (isError) {
 		const err = error as Error;
 		return <div>에러가 발생했습니다: {err.message}</div>;
@@ -103,42 +99,46 @@ function UserOrders() {
 				<FilterButton type="submit">인기순</FilterButton>
 				<FilterButton type="submit">최신순</FilterButton>
 			</FilterContainer>
-			<ProductContainer height={"633px"}>
-				<ProductList>
-					{searchKeyword && searchedOrderList?.length === 0 ? (
-						<span className="emptyList">해당하는 구매내역이 없습니다.</span>
-					) : searchedOrderList && searchedOrderList.length !== 0 ? (
-						searchedOrderList.map((order) => (
-							<ProductListItem
-								key={order._id}
-								product={order.products[0]}
-								bookmark={false}
-							/>
-						))
-					) : fetchedOrderProductList.length !== 0 ? (
-						fetchedOrderProductList.map((order) => {
-							return (
+			{isLoading ? (
+				<ProductListSkeleton />
+			) : (
+				<ProductContainer height={"633px"}>
+					<ProductList>
+						{searchKeyword && searchedOrderList?.length === 0 ? (
+							<span className="emptyList">해당하는 구매내역이 없습니다.</span>
+						) : searchedOrderList && searchedOrderList.length !== 0 ? (
+							searchedOrderList.map((order) => (
 								<ProductListItem
 									key={order._id}
 									product={order.products[0]}
 									bookmark={false}
 								/>
-							);
-						})
-					) : (
-						<span className="emptyList">구매내역이 없습니다.</span>
-					)}
-				</ProductList>
-				<MoreButton
-					type="submit"
-					ref={paginationButtonRef}
-					onClick={() => fetchNextPage()}
-					disabled={!hasNextPage || isFetchingNextPage}
-					isDisable={!hasNextPage || isFetchingNextPage}
-				>
-					더보기
-				</MoreButton>
-			</ProductContainer>
+							))
+						) : fetchedOrderProductList.length !== 0 ? (
+							fetchedOrderProductList.map((order) => {
+								return (
+									<ProductListItem
+										key={order._id}
+										product={order.products[0]}
+										bookmark={false}
+									/>
+								);
+							})
+						) : (
+							<span className="emptyList">구매내역이 없습니다.</span>
+						)}
+					</ProductList>
+					<MoreButton
+						type="submit"
+						ref={paginationButtonRef}
+						onClick={() => fetchNextPage()}
+						disabled={!hasNextPage || isFetchingNextPage}
+						isDisable={!hasNextPage || isFetchingNextPage}
+					>
+						더보기
+					</MoreButton>
+				</ProductContainer>
+			)}
 		</ProductSection>
 	);
 }

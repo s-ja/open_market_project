@@ -1,8 +1,8 @@
 import { FilterButton, FilterContainer } from "@/components/FilterComponent";
 import HelmetSetup from "@/components/HelmetSetup";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import { UserProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
+import { ProductListSkeleton } from "@/components/SkeletonUI";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
 	Heading,
@@ -125,10 +125,6 @@ function UserProducts() {
 
 	useRequireAuth();
 
-	if (isLoading) {
-		return <LoadingSpinner width="100vw" height="100vh" />;
-	}
-
 	if (isError) {
 		const err = error as Error;
 		return <div>에러가 발생했습니다: {err.message}</div>;
@@ -157,41 +153,45 @@ function UserProducts() {
 							최신순
 						</FilterButton>
 					</FilterContainer>
-					<ProductContainer height="633px">
-						<ProductList>
-							{searchKeyword && searchedProductList?.length === 0 ? (
-								<span className="emptyList">해당하는 상품이 없습니다.</span>
-							) : searchKeyword && searchedProductList?.length !== 0 ? (
-								searchedProductList?.map((item) => (
-									<UserProductListItem key={item._id} product={item} />
-								))
-							) : Array.isArray(userProductsInfo) &&
-							  userProductsInfo.length > 0 ? (
-								userProductsInfo.map((item) => (
-									<UserProductListItem key={item._id} product={item} />
-								))
-							) : fetchedProductList.length !== 0 ? (
-								fetchedProductList?.map((item) => (
-									<UserProductListItem key={item.id} product={item} />
-								))
-							) : (
-								<span className="emptyList">판매 내역이 없습니다.</span>
-							)}
-						</ProductList>
-						<MoreButton
-							type="submit"
-							ref={paginationButtonRef}
-							onClick={() => {
-								setSearchedProductList([]);
-								setUserProductsInfo([]);
-								fetchNextPage();
-							}}
-							disabled={!hasNextPage || isFetchingNextPage}
-							isDisable={!hasNextPage || isFetchingNextPage}
-						>
-							더보기
-						</MoreButton>
-					</ProductContainer>
+					{isLoading ? (
+						<ProductListSkeleton />
+					) : (
+						<ProductContainer height="633px">
+							<ProductList>
+								{searchKeyword && searchedProductList?.length === 0 ? (
+									<span className="emptyList">해당하는 상품이 없습니다.</span>
+								) : searchKeyword && searchedProductList?.length !== 0 ? (
+									searchedProductList?.map((item) => (
+										<UserProductListItem key={item._id} product={item} />
+									))
+								) : Array.isArray(userProductsInfo) &&
+								  userProductsInfo.length > 0 ? (
+									userProductsInfo.map((item) => (
+										<UserProductListItem key={item._id} product={item} />
+									))
+								) : fetchedProductList.length !== 0 ? (
+									fetchedProductList?.map((item) => (
+										<UserProductListItem key={item.id} product={item} />
+									))
+								) : (
+									<span className="emptyList">판매 내역이 없습니다.</span>
+								)}
+							</ProductList>
+							<MoreButton
+								type="submit"
+								ref={paginationButtonRef}
+								onClick={() => {
+									setSearchedProductList([]);
+									setUserProductsInfo([]);
+									fetchNextPage();
+								}}
+								disabled={!hasNextPage || isFetchingNextPage}
+								isDisable={!hasNextPage || isFetchingNextPage}
+							>
+								더보기
+							</MoreButton>
+						</ProductContainer>
+					)}
 				</>
 			) : (
 				<span className="emptyList">

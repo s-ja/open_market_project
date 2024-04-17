@@ -4,9 +4,9 @@ import {
 	FilterSelect,
 } from "@/components/FilterComponent";
 import HelmetSetup from "@/components/HelmetSetup";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import { ProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
+import { IndexSkeleton } from "@/components/SkeletonUI";
 import { useCategoryFilterProductList } from "@/hooks/useCategoryFilterProductList";
 import { codeState } from "@/states/categoryState";
 import {
@@ -44,6 +44,7 @@ const BannerSection = styled.section<bannerProps>`
 		aspect-ratio: 16 / 9;
 	}
 `;
+
 const getBookmarkData = async () => {
 	const { data } = await axiosInstance.get(`/bookmarks/`);
 	console.log(data, "sdafdsd");
@@ -138,10 +139,6 @@ function Index() {
 		fetchSearchResult();
 	}, [searchKeyword]);
 
-	if (isLoading) {
-		return <LoadingSpinner width="100vw" height="100vh" />;
-	}
-
 	if (isError || categoryFilterIsError) {
 		if (isError) {
 			const err = error as Error;
@@ -155,90 +152,100 @@ function Index() {
 	return (
 		<>
 			<HelmetSetup title="Home" description="홈페이지" url="" />
-			<BannerSection showable={searchKeyword ? false : true}>
-				<video autoPlay loop muted>
-					<source src="/videos/mainVideo.mp4" type="video/mp4" />
-					메인 영상 배너
-				</video>
-			</BannerSection>
-			<ProductSection isIndex={!searchKeyword}>
-				<Heading>메인페이지</Heading>
-				<SearchBar
-					onClick={handleSearchKeyword}
-					searchRef={searchRef}
-					showable={!!searchKeyword}
-				/>
-				<FilterContainer>
-					<FilterButton type="submit">인기순</FilterButton>
-					<FilterButton type="submit">최신순</FilterButton>
-					<FilterSelect showable={!searchKeyword}>
-						<select
-							value={categoryValue}
-							onChange={(e) => {
-								setCategoryValue(e.target.value);
-							}}
-						>
-							<option value="none" disabled hidden>
-								장르 선택
-							</option>
-							<option value="all">전체 보기</option>
-							{category && category.length !== 0
-								? category.map((item) => (
-										<option key={item.code} value={item.value}>
-											{item.value}
-										</option>
+			{isLoading ? (
+				<IndexSkeleton searchKeyword={searchKeyword} />
+			) : (
+				<div>
+					<BannerSection showable={searchKeyword ? false : true}>
+						<video autoPlay loop muted>
+							<source src="/videos/mainVideo.mp4" type="video/mp4" />
+							메인 영상 배너
+						</video>
+					</BannerSection>
+					<ProductSection isIndex={!searchKeyword}>
+						<Heading>메인페이지</Heading>
+						<SearchBar
+							onClick={handleSearchKeyword}
+							searchRef={searchRef}
+							showable={!!searchKeyword}
+						/>
+						<FilterContainer>
+							<FilterButton type="submit">인기순</FilterButton>
+							<FilterButton type="submit">최신순</FilterButton>
+							<FilterSelect showable={!searchKeyword}>
+								<select
+									value={categoryValue}
+									onChange={(e) => {
+										setCategoryValue(e.target.value);
+									}}
+								>
+									<option value="none" disabled hidden>
+										장르 선택
+									</option>
+									<option value="all">전체 보기</option>
+									{category && category.length !== 0
+										? category.map((item) => (
+												<option key={item.code} value={item.value}>
+													{item.value}
+												</option>
+											))
+										: undefined}
+								</select>
+							</FilterSelect>
+						</FilterContainer>
+						<ProductContainer height={searchKeyword ? "633px" : "400px"}>
+							<ProductList>
+								{searchKeyword && searchedProductList !== undefined ? (
+									searchedProductList.length === 0 ? (
+										<span className="emptyList">해당하는 상품이 없습니다.</span>
+									) : (
+										searchedProductList.map((product) => (
+											<ProductListItem
+												key={product._id}
+												product={product}
+												bookmark
+											/>
+										))
+									)
+								) : !searchKeyword &&
+								  categoryValue !== "all" &&
+								  fetchedFilterProductList !== undefined ? (
+									fetchedFilterProductList.length === 0 ? (
+										<span className="emptyList">해당하는 상품이 없습니다.</span>
+									) : (
+										fetchedFilterProductList.map((product: Product) => (
+											<ProductListItem
+												key={product._id}
+												product={product}
+												bookmark
+											/>
+										))
+									)
+								) : (
+									fetchedProductList?.map((product: Product) => (
+										<ProductListItem
+											key={product._id}
+											product={product}
+											bookmark
+										/>
 									))
-								: undefined}
-						</select>
-					</FilterSelect>
-				</FilterContainer>
-				<ProductContainer height={searchKeyword ? "633px" : "400px"}>
-					<ProductList>
-						{searchKeyword && searchedProductList !== undefined ? (
-							searchedProductList.length === 0 ? (
-								<span className="emptyList">해당하는 상품이 없습니다.</span>
-							) : (
-								searchedProductList.map((product) => (
-									<ProductListItem
-										key={product._id}
-										product={product}
-										bookmark
-									/>
-								))
-							)
-						) : !searchKeyword &&
-						  categoryValue !== "all" &&
-						  fetchedFilterProductList !== undefined ? (
-							fetchedFilterProductList.length === 0 ? (
-								<span className="emptyList">해당하는 상품이 없습니다.</span>
-							) : (
-								fetchedFilterProductList.map((product: Product) => (
-									<ProductListItem
-										key={product._id}
-										product={product}
-										bookmark
-									/>
-								))
-							)
-						) : (
-							fetchedProductList?.map((product: Product) => (
-								<ProductListItem key={product._id} product={product} bookmark />
-							))
-						)}
-					</ProductList>
-					<MoreButton
-						type="submit"
-						ref={paginationButtonRef}
-						onClick={() => {
-							fetchNextPage();
-						}}
-						disabled={!hasNextPage || isFetchingNextPage}
-						isDisable={!hasNextPage || isFetchingNextPage}
-					>
-						더보기
-					</MoreButton>
-				</ProductContainer>
-			</ProductSection>
+								)}
+							</ProductList>
+							<MoreButton
+								type="submit"
+								ref={paginationButtonRef}
+								onClick={() => {
+									fetchNextPage();
+								}}
+								disabled={!hasNextPage || isFetchingNextPage}
+								isDisable={!hasNextPage || isFetchingNextPage}
+							>
+								더보기
+							</MoreButton>
+						</ProductContainer>
+					</ProductSection>
+				</div>
+			)}
 		</>
 	);
 }

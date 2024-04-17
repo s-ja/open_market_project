@@ -52,7 +52,7 @@ export const DetailBadge = styled.div<BadgeProps>`
 	}
 `;
 
-const ProductExtraLinkContainer = styled.article`
+export const ProductExtraLinkContainer = styled.article`
 	width: 1440px;
 	height: 80px;
 	margin: 0 auto;

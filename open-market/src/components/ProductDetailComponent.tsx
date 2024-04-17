@@ -25,7 +25,7 @@ interface DetailProps {
 	createdAt: string;
 }
 
-const ProductDetailArticle = styled.article`
+export const ProductDetailArticle = styled.article`
 	width: 1440px;
 	height: 400px;
 	margin: 0 auto;
@@ -38,7 +38,6 @@ const ProductDetailArticle = styled.article`
 	background-color: ${Common.colors.black};
 	padding-top: 100px;
 `;
-
 const ProductMediaContainer = styled.div`
 	width: 270px;
 	height: 270px;
@@ -97,7 +96,7 @@ const ProductMediaContainer = styled.div`
 	}
 `;
 
-const ProductDetailInfo = styled.div`
+export const ProductDetailInfo = styled.div`
 	width: 670px;
 	height: 270px;
 	display: flex;
@@ -119,7 +118,7 @@ const ProductDetailInfo = styled.div`
 	}
 `;
 
-const ProductDetailContentContainer = styled.div`
+export const ProductDetailContentContainer = styled.div`
 	width: 425px;
 	height: 160px;
 	padding: ${Common.space.spacingMd};
