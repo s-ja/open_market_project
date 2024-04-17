@@ -11,6 +11,7 @@ const HelmetSetup: React.FC<HelmetProps> = ({ title, description, url }) => {
 	return (
 		<Helmet>
 			<title>{title} - 모두의 오디오 MODI</title>
+			<meta name="fragment" content="!"></meta>
 			<meta
 				name="description"
 				content={`소규모 음원 제작자들을 위한 오픈마켓 플랫폼 - ${description}`}
