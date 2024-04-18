@@ -25,6 +25,7 @@ import UserBookmarks from "./pages/user/UserBookmarks";
 import UserEdit from "./pages/user/UserEdit";
 import UserOrders from "./pages/user/UserOrders";
 import UserProducts from "./pages/user/UserProducts";
+import UserReplies from "./pages/user/UserReplies";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +90,7 @@ function App() {
 						<Route path="userbookmarks" element={<UserBookmarks />} />
 						<Route path="user/:userId/products" element={<UserProducts />} />
 						<Route path="orders" element={<UserOrders />} />
+						<Route path="replies" element={<UserReplies />} />
 						{/* signin, signup */}
 						<Route path="signin" element={<SignIn />} />
 						<Route path="signup" element={<SignUp />} />

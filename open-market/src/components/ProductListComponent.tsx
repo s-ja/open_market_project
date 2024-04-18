@@ -1,3 +1,4 @@
+import { ShowStarRating } from "@/components/ReplyComponent";
 import MusicPlayer from "@/components/audioPlayer/MusicPlayer";
 import { currentUserState } from "@/states/authState";
 import { Common } from "@/styles/common";
@@ -80,6 +81,13 @@ const ListItem = styled.li`
 		background-color: ${Common.colors.emphasize};
 		border-radius: 10px;
 	}
+
+	span.replyContent {
+		width: 500px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
 `;
 
 const StyledTitleSpan = styled.span`
@@ -117,7 +125,20 @@ const StyledElementSpan = styled.span`
 	border-radius: 10px;
 `;
 
-const StyledLink = StyledTitleSpan.withComponent(Link);
+const StyledLink = styled(Link)`
+	width: auto;
+	height: 24px;
+	padding: 0 10px;
+	color: ${Common.colors.black};
+	font-size: 16px;
+	text-decoration: none;
+	text-align: center;
+	line-height: 24px;
+	border-radius: 10px;
+	background-color: ${Common.colors.emphasize};
+`;
+
+const StyledTitleLink = StyledTitleSpan.withComponent(Link);
 
 async function postScrap(productId: number, userId: number) {
 	try {
@@ -159,7 +180,7 @@ export function ProductListItem({ product, bookmark }: ProductItemProps) {
 
 	return (
 		<ListItem key={product?._id}>
-			<StyledLink to={`/productdetail/${product._id}`}>
+			<StyledTitleLink to={`/productdetail/${product._id}`}>
 				<img
 					src={
 						"image" in product
@@ -169,7 +190,7 @@ export function ProductListItem({ product, bookmark }: ProductItemProps) {
 					alt={`${product.name} 앨범 아트`}
 				/>
 				<span title={product.name}>{product.name}</span>
-			</StyledLink>
+			</StyledTitleLink>
 			<MusicPlayer
 				soundFile={product.extra?.soundFile!}
 				audioId={product?._id}
@@ -250,6 +271,25 @@ export function UserProductListItem({ product }: { product: Product }) {
 			<Link className="manageLink" to={`/productmanage/${product?._id}`}>
 				상세보기
 			</Link>
+		</ListItem>
+	);
+}
+
+export function UserRepliesListItem({ reply }: { reply: Reply }) {
+	return (
+		<ListItem key={reply.product?._id}>
+			<StyledTitleSpan>
+				<img
+					src={reply.product.image.path}
+					alt={`${reply.product.name} 앨범 아트`}
+				/>
+				<span title={reply.product.name}>{reply.product.name}</span>
+			</StyledTitleSpan>
+			<span className="replyContent">{reply.content}</span>
+			<ShowStarRating rating={reply.rating} />
+			<StyledLink to={`/productdetail/${reply.product._id}`}>
+				음원 상세 페이지 이동
+			</StyledLink>
 		</ListItem>
 	);
 }
