@@ -187,7 +187,7 @@ export function ProductListItem({ product, bookmark }: ProductItemProps) {
 							? (product as OrderProduct).image!.path
 							: product.mainImages[0]?.path
 					}
-					alt={`${product.name} 앨범 아트`}
+					alt={`${product.name}의 앨범 아트`}
 				/>
 				<span title={product.name}>{product.name}</span>
 			</StyledTitleLink>
@@ -238,7 +238,7 @@ export function UserProductListItem({ product }: { product: Product }) {
 			<StyledTitleSpan>
 				<img
 					src={product?.mainImages[0]?.path}
-					alt={`${product?.name} 앨범 아트`}
+					alt={`${product?.name}의 앨범 아트`}
 				/>
 				<span title={product?.name}>{product?.name}</span>
 			</StyledTitleSpan>
@@ -263,9 +263,13 @@ export function UserProductListItem({ product }: { product: Product }) {
 			</StyledElementSpan>
 			<ThemeProvider theme={theme}>
 				{product.show ? (
-					<LockOpenIcon sx={{ color: `primary.dark` }} />
+					<span aria-label="잠금 해제">
+						<LockOpenIcon sx={{ color: `primary.dark` }} />
+					</span>
 				) : (
-					<LockIcon sx={{ color: `primary.main` }} />
+					<span aria-label="잠금">
+						<LockIcon sx={{ color: `primary.main` }} />
+					</span>
 				)}
 			</ThemeProvider>
 			<Link className="manageLink" to={`/productmanage/${product?._id}`}>
@@ -281,7 +285,7 @@ export function UserRepliesListItem({ reply }: { reply: Reply }) {
 			<StyledTitleSpan>
 				<img
 					src={reply.product.image.path}
-					alt={`${reply.product.name} 앨범 아트`}
+					alt={`${reply.product.name}의 앨범 아트`}
 				/>
 				<span title={reply.product.name}>{reply.product.name}</span>
 			</StyledTitleSpan>

@@ -164,7 +164,7 @@ function SignIn() {
 			<HelmetSetup title="Sign In" description="로그인" url="signin" />
 			<Logo>
 				<Link to="/">
-					<img src={logoImage} alt="모디 로고" />
+					<img src={logoImage} alt="모두의 오디오! 모디의 로고 이미지 입니다." />
 				</Link>
 			</Logo>
 			<Title>로그인</Title>

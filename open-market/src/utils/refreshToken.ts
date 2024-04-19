@@ -14,7 +14,6 @@ export const axiosInstance = axios.create({
 let isRefreshing = false;
 let refreshmentPromise: Promise<void> = new Promise(() => {});
 
-
 async function refreshAccessToken(): Promise<void> {
 	if (isRefreshing) {
 		return refreshmentPromise;

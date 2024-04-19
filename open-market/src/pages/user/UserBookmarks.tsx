@@ -72,7 +72,7 @@ function UserBookmarks() {
 									<StyledLink to={`/productdetail/${i.product_id}`}>
 										<img
 											src={i.product.image.path}
-											alt={`${i.product.name} 앨범 아트`}
+											alt={`${i.product.name}의 앨범 아트`}
 										/>
 										<span title={i.product.name}>{i.product.name}</span>
 									</StyledLink>

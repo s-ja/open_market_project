@@ -257,7 +257,7 @@ function ProductPurchase() {
 					<FormTopLayout>
 						<img
 							src={`${product?.mainImages[0].path}`}
-							alt={product?.name ? `${product.name} 앨범 아트` : ""}
+							alt={product?.name ? `${product.name}의 앨범 아트` : ""}
 							className="ProductImage"
 						/>
 						<FormTopRightLayout>

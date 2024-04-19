@@ -36,6 +36,7 @@ const HeaderContainer = styled(AppBar)`
 	background: rgba(40, 40, 44, 0.8);
 	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 	width: 100%;
+	height: 80px;
 	align-items: center;
 	position: fixed;
 	z-index: 100;
@@ -43,7 +44,6 @@ const HeaderContainer = styled(AppBar)`
 
 const HeaderWrapper = styled(Toolbar)`
 	width: 1440px;
-	height: 80px;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -140,8 +140,6 @@ function Header() {
 	});
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-	const [notificationAnchorEl, setNotificationAnchorEl] =
-		useState<null | HTMLElement>(null);
 
 	const [searchInput, setSearchInput] = useState("");
 
@@ -185,7 +183,6 @@ function Header() {
 
 	function handleMenuClose() {
 		setAnchorEl(null);
-		setNotificationAnchorEl(null);
 	}
 
 	function handleLogout() {
@@ -226,7 +223,7 @@ function Header() {
 					>
 						<img
 							src={logoImage}
-							alt="모디 로고"
+							alt="모디 로고, 메인 페이지 이동 버튼"
 							onLoad={onLogoLoad}
 							style={{ display: isLogoLoaded ? "block" : "none" }}
 						/>
@@ -246,9 +243,11 @@ function Header() {
 					InputProps={{
 						endAdornment: (
 							<InputAdornment position="end">
-								<IconButton onClick={handleSearchClick}>
-									<Search />
-								</IconButton>
+								<span aria-label="검색 버튼">
+									<IconButton onClick={handleSearchClick}>
+										<Search />
+									</IconButton>
+								</span>
 							</InputAdornment>
 						),
 					}}
@@ -265,17 +264,11 @@ function Header() {
 							업로드
 						</UploadButton>
 
-						<Menu
-							anchorEl={notificationAnchorEl}
-							open={Boolean(notificationAnchorEl)}
-							onClose={handleMenuClose}
-						>
-							<MenuItem onClick={handleMenuClose}>알림1</MenuItem>
-						</Menu>
-
-						<UserButton color="inherit" onClick={handleProfileMenuOpen}>
-							<AccountCircle />
-						</UserButton>
+						<span aria-label="사용자 메뉴">
+							<UserButton color="inherit" onClick={handleProfileMenuOpen}>
+								<AccountCircle />
+							</UserButton>
+						</span>
 						<Menu
 							anchorEl={anchorEl}
 							open={Boolean(anchorEl)}

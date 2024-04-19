@@ -42,11 +42,13 @@ interface bannerProps {
 const BannerSection = styled.section<bannerProps>`
 	display: ${(props) => (props.showable ? "block" : "none")};
 	width: 100%;
-	height: auto;
+	/* height: auto; */
+	height: 530px;
 	background-color: ${Common.colors.black};
 	padding-top: 80px;
 	position: relative;
 
+	overflow: hidden;
 	video {
 		width: 100%;
 		height: 500px;
@@ -259,7 +261,14 @@ function Index() {
 							ref={videoRef} // 비디오 요소에 대한 참조 설정
 						>
 							<source src="/videos/mainVideo.mp4" type="video/mp4" />
-							메인 영상 배너
+							<track
+								src="/videos/mainVideo.vtt"
+								kind="captions"
+								srcLang="ko"
+								label="한국어 자막"
+								default
+							/>
+							모두의 오디오! MODI 메인 페이지 배너 영상입니다.
 						</video>
 						<div className="description">
 							<span>소규모 음원 제작자들을 위한 오픈마켓 플랫폼</span>
