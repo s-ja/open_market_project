@@ -1,5 +1,6 @@
 import FunctionalButton from "@/components/FunctionalButton";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import HelmetSetup from "@/components/HelmetSetup";
+import { ProductPurchaseSkeleton } from "@/components/SkeletonUI";
 import Textarea from "@/components/Textarea";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { currentUserState } from "@/states/authState";
@@ -9,10 +10,10 @@ import { axiosInstance, numberWithComma } from "@/utils";
 import styled from "@emotion/styled";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
+import { ProductInfoWrapper } from "./ProductManage";
 
 interface FlexLayoutProps {
 	right?: boolean;
@@ -241,61 +242,66 @@ function ProductPurchase() {
 		setGenre(translateCodeToValue(product?.extra?.category!));
 	}, [product, category]);
 
-	if (isLoading) {
-		return <LoadingSpinner width="100vw" height="100vh" />;
-	}
-
 	return (
 		<ProductPurchaseSection>
-			<Helmet>
-				<title>Order Product - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup
+				title="Order Product"
+				description="음원 구매 페이지"
+				url={`productpurchase/${productId}`}
+			/>
 			<h2 className="a11yHidden">상품 구매</h2>
-			<div className="ProductInfoWrapper">
-				<FormTopLayout>
-					<img
-						src={`${product?.mainImages[0].path}`}
-						alt={product?.name ? `${product.name} 앨범 아트` : ""}
-						className="ProductImage"
-					/>
-					<FormTopRightLayout>
-						<ProductItemWrapper>
-							<ProductLabel bar>제목</ProductLabel>
-							<ProductValue>{product?.name}</ProductValue>
-						</ProductItemWrapper>
-						<FlexLayout>
-							<ProductItemWrapper wide>
-								<ProductLabel bar>아티스트</ProductLabel>
-								<ProductValue> {product?.extra?.sellerName}</ProductValue>
-							</ProductItemWrapper>
+			{isLoading ? (
+				<ProductPurchaseSkeleton />
+			) : (
+				<ProductInfoWrapper>
+					<FormTopLayout>
+						<img
+							src={`${product?.mainImages[0].path}`}
+							alt={product?.name ? `${product.name}의 앨범 아트` : ""}
+							className="ProductImage"
+						/>
+						<FormTopRightLayout>
 							<ProductItemWrapper>
-								<ProductLabel bar>장르</ProductLabel>
-								<ProductValue>{genre}</ProductValue>
+								<ProductLabel bar>제목</ProductLabel>
+								<ProductValue>{product?.name}</ProductValue>
 							</ProductItemWrapper>
-						</FlexLayout>
-						<ContentWrapper>
-							<Textarea readOnly={true} content={product?.content} small />
-							<span className="ContentInHash">
-								{product?.extra?.tags?.map((tag) => `#${tag} `)}
-							</span>
-						</ContentWrapper>
-					</FormTopRightLayout>
-				</FormTopLayout>
-				<ProductItemWrapper large>
-					<ProductLabel>결제 정보</ProductLabel>
-					<ProductValue large>
-						{product?.price !== undefined ? numberWithComma(product.price) : 0}₩
-					</ProductValue>
-				</ProductItemWrapper>
-				<FlexLayout right>
-					<FunctionalButton
-						secondary
-						handleFn={() => navigate(-1)}
-						text="취소"
-					/>
-					<FunctionalButton handleFn={handleProductOrder} text="구매" />
-				</FlexLayout>
-			</div>
+							<FlexLayout>
+								<ProductItemWrapper wide>
+									<ProductLabel bar>아티스트</ProductLabel>
+									<ProductValue> {product?.extra?.sellerName}</ProductValue>
+								</ProductItemWrapper>
+								<ProductItemWrapper>
+									<ProductLabel bar>장르</ProductLabel>
+									<ProductValue>{genre}</ProductValue>
+								</ProductItemWrapper>
+							</FlexLayout>
+							<ContentWrapper>
+								<Textarea readOnly={true} content={product?.content} small />
+								<span className="ContentInHash">
+									{product?.extra?.tags?.map((tag) => `#${tag} `)}
+								</span>
+							</ContentWrapper>
+						</FormTopRightLayout>
+					</FormTopLayout>
+					<ProductItemWrapper large>
+						<ProductLabel>결제 정보</ProductLabel>
+						<ProductValue large>
+							{product?.price !== undefined
+								? numberWithComma(product.price)
+								: 0}
+							₩
+						</ProductValue>
+					</ProductItemWrapper>
+					<FlexLayout right>
+						<FunctionalButton
+							secondary
+							handleFn={() => navigate(-1)}
+							text="취소"
+						/>
+						<FunctionalButton handleFn={handleProductOrder} text="구매" />
+					</FlexLayout>
+				</ProductInfoWrapper>
+			)}
 		</ProductPurchaseSection>
 	);
 }

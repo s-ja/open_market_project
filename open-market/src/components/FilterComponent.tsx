@@ -6,7 +6,7 @@ interface DisplayProps {
 }
 
 export const FilterContainer = styled.div`
-	margin: ${Common.space.spacingLg} 0 5px ${Common.space.spacingMd};
+	margin: 0 0 5px ${Common.space.spacingMd};
 	display: flex;
 	flex-flow: row nowrap;
 	gap: ${Common.space.spacingMd};

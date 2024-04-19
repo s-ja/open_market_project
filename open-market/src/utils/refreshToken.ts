@@ -11,14 +11,14 @@ export const axiosInstance = axios.create({
 	},
 });
 
-let refreshingToken: any = null;
+let isRefreshing = false;
+let refreshmentPromise: Promise<void> = new Promise(() => {});
 
-async function refreshToken() {
-	if (refreshingToken) {
-		return refreshingToken;
+async function refreshAccessToken(): Promise<void> {
+	if (isRefreshing) {
+		return refreshmentPromise;
 	}
-
-	refreshingToken = axios
+	refreshmentPromise = axios
 		.get("https://modi-ip3-modi.koyeb.app/api/users/refresh", {
 			headers: {
 				Authorization: `Bearer ${localStorage.getItem("refreshToken")}`,
@@ -28,10 +28,8 @@ async function refreshToken() {
 			if (response.data.ok) {
 				const newAccessToken = response.data.accessToken;
 				localStorage.setItem("accessToken", newAccessToken);
-				currentAccessToken = newAccessToken;
 				axiosInstance.defaults.headers.common["Authorization"] =
 					`Bearer ${newAccessToken}`;
-				return newAccessToken;
 			} else {
 				throw new Error("Failed to refresh token");
 			}
@@ -41,10 +39,10 @@ async function refreshToken() {
 			throw error;
 		})
 		.finally(() => {
-			refreshingToken = null;
+			isRefreshing = false;
 		});
-
-	return refreshingToken;
+	isRefreshing = true;
+	return refreshmentPromise;
 }
 
 function handleTokenRefreshError(error: any) {
@@ -62,12 +60,11 @@ function handleTokenRefreshError(error: any) {
 	localStorage.clear();
 }
 
-let currentAccessToken = localStorage.getItem("accessToken");
-
 axiosInstance.interceptors.request.use(
 	(config) => {
-		if (currentAccessToken) {
-			config.headers["Authorization"] = `Bearer ${currentAccessToken}`;
+		let accessToken = localStorage.getItem("accessToken");
+		if (accessToken) {
+			config.headers["Authorization"] = `Bearer ${accessToken}`;
 		}
 		return config;
 	},
@@ -84,7 +81,8 @@ axiosInstance.interceptors.response.use(
 		if (error.response.status === 401 && !originalRequest._retry) {
 			originalRequest._retry = true;
 			try {
-				const newAccessToken = await refreshToken();
+				await refreshAccessToken();
+				const newAccessToken = localStorage.getItem("accessToken");
 				originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
 				return axiosInstance(originalRequest);
 			} catch (refreshError) {

@@ -1,8 +1,13 @@
 import { Common } from "@/styles/common";
+import { axiosInstance } from "@/utils";
 import styled from "@emotion/styled";
-import BookmarkOutlinedIcon from "@mui/icons-material/BookmarkOutlined";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import CheckIcon from "@mui/icons-material/Check";
 import DownloadIcon from "@mui/icons-material/Download";
+import { isAxiosError } from "axios";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 const API_KEY = import.meta.env.VITE_API_SERVER;
 
@@ -15,6 +20,7 @@ interface ProductDetailProps {
 	product: Product | undefined;
 	order: Order | undefined;
 	currentUser: CurrentUser | null;
+	bookmark: Bookmark | undefined | null;
 }
 
 export const DetailBadgeContainer = styled.div`
@@ -46,7 +52,7 @@ export const DetailBadge = styled.div<BadgeProps>`
 	}
 `;
 
-const ProductExtraLinkContainer = styled.article`
+export const ProductExtraLinkContainer = styled.article`
 	width: 1440px;
 	height: 80px;
 	margin: 0 auto;
@@ -103,7 +109,13 @@ function ProductDetailExtraLink({
 	product,
 	order,
 	currentUser,
+	bookmark: initialBookmark,
 }: ProductDetailProps) {
+	const [bookmark, setBookmark] = useState(initialBookmark);
+	const [bookmarkCount, setBookmarkCount] = useState(
+		product?.bookmarks ? product.bookmarks.length : 0,
+	);
+
 	const navigate = useNavigate();
 
 	function handelSignIn() {
@@ -111,14 +123,79 @@ function ProductDetailExtraLink({
 			navigate("/signin");
 		}
 	}
-
+	function handleScrap() {
+		if (bookmark) {
+			try {
+				axiosInstance.delete(`/bookmarks/${bookmark._id}`).then(() => {
+					toast.success("북마크 삭제 완료", {
+						ariaProps: {
+							role: "status",
+							"aria-live": "polite",
+						},
+					});
+					setBookmark(null);
+					setBookmarkCount((prevCount) => prevCount - 1);
+				});
+			} catch (error) {
+				console.error(error);
+				toast.error("북마크 삭제 실패", {
+					ariaProps: {
+						role: "status",
+						"aria-live": "polite",
+					},
+				});
+			}
+		} else {
+			try {
+				axiosInstance
+					.post(`/bookmarks/`, {
+						user_id: currentUser?._id,
+						product_id: product?._id,
+						memo: "",
+					})
+					.then((response) => {
+						toast.success("북마크 성공 완료", {
+							ariaProps: {
+								role: "status",
+								"aria-live": "polite",
+							},
+						});
+						setBookmark(response.data.item);
+						setBookmarkCount((prevCount) => prevCount + 1);
+					})
+					.catch((error) => {
+						if (isAxiosError(error)) {
+							if (error.response && error.response.status === 409) {
+								toast.error("이미 북마크된 상품입니다.", {
+									ariaProps: {
+										role: "status",
+										"aria-live": "polite",
+									},
+								});
+							} else {
+								console.error("알 수 없는 오류가 발생했습니다.", error.message);
+							}
+						}
+					});
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	}
+	useEffect(() => {
+		setBookmark(initialBookmark);
+	}, [initialBookmark]);
 	return (
 		<ProductExtraLinkContainer>
 			<div>
-				<BookmarkButton>
-					<BookmarkOutlinedIcon />
+				<BookmarkButton onClick={handleScrap}>
+					{bookmark ? (
+						<BookmarkIcon sx={{ color: `primary.main` }} />
+					) : (
+						<BookmarkBorderIcon sx={{ color: `primary.light` }} />
+					)}
 					북마크
-					{product?.bookmarks ? product?.bookmarks.length : 0}
+					{bookmarkCount}
 				</BookmarkButton>
 				{!currentUser ? (
 					<NoUserPurchaseButton type="button" onClick={handelSignIn}>

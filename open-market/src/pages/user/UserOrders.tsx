@@ -1,14 +1,15 @@
-import { FilterButton, FilterContainer } from "@/components/FilterComponent";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import HelmetSetup from "@/components/HelmetSetup";
+import { ProductListItem } from "@/components/ProductListComponent";
+import SearchBar from "@/components/SearchBar";
+import { ProductListSkeleton } from "@/components/SkeletonUI";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
 	Heading,
+	MoreButton,
 	ProductContainer,
 	ProductList,
 	ProductSection,
 } from "@/styles/ProductListStyle";
-import { ProductListItem } from "@/components/ProductListIComponent";
-import SearchBar from "@/components/SearchBar";
-import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
 	axiosInstance,
 	getItemWithExpireTime,
@@ -16,7 +17,6 @@ import {
 } from "@/utils";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { Helmet } from "react-helmet-async";
 
 function UserOrders() {
 	const searchRef = useRef<HTMLInputElement>(null);
@@ -81,64 +81,59 @@ function UserOrders() {
 		fetchSearchResult();
 	}, [searchKeyword]);
 
-	if (isLoading) {
-		return <LoadingSpinner width="100vw" height="100vh" />;
-	}
-
 	if (isError) {
 		const err = error as Error;
 		return <div>에러가 발생했습니다: {err.message}</div>;
 	}
 	return (
 		<ProductSection>
-			<Helmet>
-				<title>My Orders - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup
+				title="My Orders"
+				description="주문 내역 조회"
+				url="orders"
+			/>
 			<Heading>구매내역</Heading>
 			<SearchBar onClick={handleSearchKeyword} searchRef={searchRef} showable />
-			<FilterContainer>
-				<FilterButton type="submit">인기순</FilterButton>
-				<FilterButton type="submit">최신순</FilterButton>
-			</FilterContainer>
-			<ProductContainer
-				height={"633px"}
-				isDisable={!hasNextPage || isFetchingNextPage}
-			>
-				<ProductList>
-					{searchKeyword && searchedOrderList?.length === 0 ? (
-						<span className="emptyList">해당하는 구매내역이 없습니다.</span>
-					) : searchedOrderList && searchedOrderList.length !== 0 ? (
-						searchedOrderList.map((order) => (
-							<ProductListItem
-								key={order._id}
-								product={order.products[0]}
-								bookmark={false}
-							/>
-						))
-					) : fetchedOrderProductList.length !== 0 ? (
-						fetchedOrderProductList.map((order) => {
-							return (
+			{isLoading ? (
+				<ProductListSkeleton />
+			) : (
+				<ProductContainer height={"633px"}>
+					<ProductList>
+						{searchKeyword && searchedOrderList?.length === 0 ? (
+							<span className="emptyList">해당하는 구매내역이 없습니다.</span>
+						) : searchedOrderList && searchedOrderList.length !== 0 ? (
+							searchedOrderList.map((order) => (
 								<ProductListItem
 									key={order._id}
 									product={order.products[0]}
 									bookmark={false}
 								/>
-							);
-						})
-					) : (
-						<span className="emptyList">구매내역이 없습니다.</span>
-					)}
-				</ProductList>
-				<button
-					type="submit"
-					className="moreButton"
-					ref={paginationButtonRef}
-					onClick={() => fetchNextPage()}
-					disabled={!hasNextPage || isFetchingNextPage}
-				>
-					더보기
-				</button>
-			</ProductContainer>
+							))
+						) : fetchedOrderProductList.length !== 0 ? (
+							fetchedOrderProductList.map((order) => {
+								return (
+									<ProductListItem
+										key={order._id}
+										product={order.products[0]}
+										bookmark={false}
+									/>
+								);
+							})
+						) : (
+							<span className="emptyList">구매내역이 없습니다.</span>
+						)}
+					</ProductList>
+					<MoreButton
+						type="submit"
+						ref={paginationButtonRef}
+						onClick={() => fetchNextPage()}
+						disabled={!hasNextPage || isFetchingNextPage}
+						isDisable={!hasNextPage || isFetchingNextPage}
+					>
+						더보기
+					</MoreButton>
+				</ProductContainer>
+			)}
 		</ProductSection>
 	);
 }

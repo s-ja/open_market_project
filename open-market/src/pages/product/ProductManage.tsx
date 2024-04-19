@@ -1,5 +1,6 @@
 import FunctionalButton from "@/components/FunctionalButton";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import HelmetSetup from "@/components/HelmetSetup";
+import { ProductManagementSkeleton } from "@/components/SkeletonUI";
 import Textarea from "@/components/Textarea";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { currentUserState } from "@/states/authState";
@@ -13,7 +14,6 @@ import { Radio, RadioProps } from "@mui/material";
 import { styled as muiStyled } from "@mui/system";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import toast from "react-hot-toast";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -42,18 +42,6 @@ const ProductManagementSection = styled.section`
 		display: ${Common.a11yHidden};
 	}
 
-	.ProductInfoWrapper {
-		background-color: ${Common.colors.gray2};
-		padding: 40px;
-		width: 1328px;
-		margin: 0 auto;
-		margin-bottom: 20px;
-		border-radius: 10px;
-		display: flex;
-		flex-direction: column;
-		position: relative;
-		gap: ${Common.space.spacingXl};
-	}
 	.ProductImage {
 		border-radius: 10px;
 		width: 300px;
@@ -63,13 +51,26 @@ const ProductManagementSection = styled.section`
 	}
 `;
 
-const FormTopLayout = styled.div`
+export const ProductInfoWrapper = styled.div`
+	background-color: ${Common.colors.gray2};
+	padding: 40px;
+	width: 1328px;
+	margin: 0 auto;
+	margin-bottom: 20px;
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	gap: ${Common.space.spacingXl};
+`;
+
+export const FormTopLayout = styled.div`
 	width: 1248px;
 	display: flex;
 	gap: ${Common.space.spacingLg};
 `;
 
-const FormTopRightLayout = styled.div`
+export const FormTopRightLayout = styled.div`
 	display: flex;
 	flex: 1;
 	flex-direction: column;
@@ -117,7 +118,7 @@ const ProductValue = styled.span<LabelProps>`
   `}
 `;
 
-const FlexLayout = styled.div<FlexLayoutProps>`
+export const FlexLayout = styled.div<FlexLayoutProps>`
 	display: flex;
 	gap: ${Common.space.spacingXl};
 	${(props) => props.right && "justify-content: flex-end;"}
@@ -262,104 +263,106 @@ function ProductManage() {
 		setGenre(translateCodeToValue(userProductInfo?.extra?.category!));
 	}, [userProductInfo, category]);
 
-	if (isLoading) {
-		return <LoadingSpinner width="100vw" height="100vh" />;
-	}
-
 	return (
 		<ProductManagementSection>
-			<Helmet>
-				<title>Management Product - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup
+				title="Manage Product"
+				description="판매 음원 관리"
+				url={`productmanage/${productId}`}
+			/>
 			<h2 className="a11yHidden">상품 관리</h2>
-			<div className="ProductInfoWrapper">
-				<UserProductListLink to={`/user/${currentUser!._id}/products`}>
-					&gt; 판매 상품 목록
-				</UserProductListLink>
-				<FormTopLayout>
-					<img
-						src={userProductInfo?.mainImages[0].path}
-						alt={`${userProductInfo?.name} 앨범 아트`}
-						className="ProductImage"
-					/>
-					<FormTopRightLayout>
-						<ProductItemWrapper>
-							<ProductLabel bar>제목</ProductLabel>
-							<ProductValue>{userProductInfo?.name}</ProductValue>
-							{userProductInfo?.show ? (
-								<ProductDetailLink
-									to={`/productdetail/${userProductInfo?._id}`}
-								>
-									상세 페이지 확인
-								</ProductDetailLink>
-							) : (
-								<></>
-							)}
-						</ProductItemWrapper>
-						<FlexLayout>
+			{isLoading ? (
+				<ProductManagementSkeleton />
+			) : (
+				<ProductInfoWrapper>
+					<UserProductListLink to={`/user/${currentUser!._id}/products`}>
+						&gt; 판매 상품 목록
+					</UserProductListLink>
+					<FormTopLayout>
+						<img
+							src={userProductInfo?.mainImages[0].path}
+							alt={`${userProductInfo?.name}의 앨범 아트`}
+							className="ProductImage"
+						/>
+						<FormTopRightLayout>
 							<ProductItemWrapper>
-								<ProductLabel bar>장르</ProductLabel>
-								<ProductValue>{genre}</ProductValue>
+								<ProductLabel bar>제목</ProductLabel>
+								<ProductValue>{userProductInfo?.name}</ProductValue>
+								{userProductInfo?.show ? (
+									<ProductDetailLink
+										to={`/productdetail/${userProductInfo?._id}`}
+									>
+										상세 페이지 확인
+									</ProductDetailLink>
+								) : (
+									<></>
+								)}
 							</ProductItemWrapper>
-							<ProductItemWrapper wide>
-								<ProductLabel bar>해시태그</ProductLabel>
-								<ProductValue>
-									{userProductInfo?.extra?.tags?.map((i) => `#${i} `)}
-								</ProductValue>
-							</ProductItemWrapper>
-						</FlexLayout>
-						<Textarea readOnly={true} content={userProductInfo?.content} />
-					</FormTopRightLayout>
-				</FormTopLayout>
-				<FlexLayout>
-					<ProductItemWrapper large>
-						<ProductLabel>
-							판매 수익 (판매 가격:
-							<span> {numberWithComma(userProductInfo?.price!)}₩</span>)
-						</ProductLabel>
+							<FlexLayout>
+								<ProductItemWrapper>
+									<ProductLabel bar>장르</ProductLabel>
+									<ProductValue>{genre}</ProductValue>
+								</ProductItemWrapper>
+								<ProductItemWrapper wide>
+									<ProductLabel bar>해시태그</ProductLabel>
+									<ProductValue>
+										{userProductInfo?.extra?.tags?.map((i) => `#${i} `)}
+									</ProductValue>
+								</ProductItemWrapper>
+							</FlexLayout>
+							<Textarea readOnly={true} content={userProductInfo?.content} />
+						</FormTopRightLayout>
+					</FormTopLayout>
+					<FlexLayout>
+						<ProductItemWrapper large>
+							<ProductLabel>
+								판매 수익 (판매 가격:
+								<span> {numberWithComma(userProductInfo?.price!)}₩</span>)
+							</ProductLabel>
 
-						<ProductValue large>
-							{typeof userProductInfo?.buyQuantity !== "undefined"
-								? numberWithComma(
-										userProductInfo?.buyQuantity * userProductInfo?.price,
-									)
-								: "0"}
-							₩
-						</ProductValue>
-					</ProductItemWrapper>
-					<ProductRadioButtonWrapper>
-						<span>공개여부</span>
-						<RadioButtonGroup>
-							<span>공개</span>
-							<StyledRadio
-								checked={userProductInfo?.show === true}
-								value="true"
-							/>
-							<div>
-								<span>비공개</span>
+							<ProductValue large>
+								{typeof userProductInfo?.buyQuantity !== "undefined"
+									? numberWithComma(
+											userProductInfo?.buyQuantity * userProductInfo?.price,
+										)
+									: "0"}
+								₩
+							</ProductValue>
+						</ProductItemWrapper>
+						<ProductRadioButtonWrapper>
+							<span>공개여부</span>
+							<RadioButtonGroup>
+								<span>공개</span>
 								<StyledRadio
-									checked={userProductInfo?.show === false}
-									value="false"
+									checked={userProductInfo?.show === true}
+									value="true"
 								/>
-							</div>
-						</RadioButtonGroup>
-					</ProductRadioButtonWrapper>
-				</FlexLayout>
-				<FlexLayout right>
-					<FunctionalButton
-						secondary
-						type="submit"
-						handleFn={handleProductDelete}
-						text="삭제"
-					/>
-					<LinkedEditButton
-						to={`/productedit/${userProductInfo?._id}`}
-						title="수정하러 가기"
-					>
-						수정
-					</LinkedEditButton>
-				</FlexLayout>
-			</div>
+								<div>
+									<span>비공개</span>
+									<StyledRadio
+										checked={userProductInfo?.show === false}
+										value="false"
+									/>
+								</div>
+							</RadioButtonGroup>
+						</ProductRadioButtonWrapper>
+					</FlexLayout>
+					<FlexLayout right>
+						<FunctionalButton
+							secondary
+							type="submit"
+							handleFn={handleProductDelete}
+							text="삭제"
+						/>
+						<LinkedEditButton
+							to={`/productedit/${userProductInfo?._id}`}
+							title="수정하러 가기"
+						>
+							수정
+						</LinkedEditButton>
+					</FlexLayout>
+				</ProductInfoWrapper>
+			)}
 		</ProductManagementSection>
 	);
 }

@@ -1,5 +1,6 @@
 import FormInput from "@/components/FormInput";
 import FunctionalButton from "@/components/FunctionalButton";
+import HelmetSetup from "@/components/HelmetSetup";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import SelectGenre from "@/components/SelectGenre";
 import Textarea from "@/components/Textarea";
@@ -16,7 +17,6 @@ import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import { Radio, RadioProps } from "@mui/material";
 import { styled as muiStyled } from "@mui/system";
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import toast, { Renderable, Toast, ValueFunction } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -271,9 +271,11 @@ function ProductRegistration() {
 
 	return (
 		<ProductRegistSection>
-			<Helmet>
-				<title>Register Product - 모두의 오디오 MODI</title>
-			</Helmet>
+			<HelmetSetup
+				title="Register Product"
+				description="음원 등록"
+				url="productregistration"
+			/>
 			<h2 className="a11yHidden">상품 등록</h2>
 			<form encType="multipart/form-data" className="PostFormWrapper">
 				<FormTopLayout>

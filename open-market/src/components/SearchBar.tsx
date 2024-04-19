@@ -26,6 +26,7 @@ const StyledSearchBar = styled.form<DisplayProps>`
 	width: 1160px;
 	height: auto;
 	position: relative;
+	margin-bottom: ${Common.space.spacingLg};
 
 	label {
 		display: ${Common.a11yHidden};
@@ -74,7 +75,9 @@ function SearchBar({ onClick, searchRef, showable }: SearchBarProps) {
 			/>
 			<button type="button" onClick={onClick}>
 				<ThemeProvider theme={theme}>
-					<SearchIcon fontSize="large" color="primary" />
+					<span aria-label="검색 버튼">
+						<SearchIcon fontSize="large" color="primary" />
+					</span>
 				</ThemeProvider>
 			</button>
 		</StyledSearchBar>

@@ -32,29 +32,6 @@ export const ReplyContainer = styled.article`
 			color: ${Common.colors.gray2};
 		}
 	}
-
-	.moreButton {
-		width: 100px;
-		height: 40px;
-		position: relative;
-		left: 50%;
-		transform: translateX(-50%);
-		background-color: transparent;
-		border: none;
-		font-weight: ${Common.font.weight.regular};
-
-		&::after {
-			content: "";
-			position: absolute;
-			top: 50%;
-			transform: translateY(-30%);
-			right: 12px;
-			border-bottom: solid 8px transparent;
-			border-top: solid 8px black;
-			border-left: solid 8px transparent;
-			border-right: solid 8px transparent;
-		}
-	}
 `;
 
 const StyledReplyListItem = styled.li`
