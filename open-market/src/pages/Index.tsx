@@ -21,12 +21,18 @@ import {
 	ProductSection,
 } from "@/styles/ProductListStyle";
 import { Common } from "@/styles/common";
-import { axiosInstance, searchProductList } from "@/utils";
+import {
+	axiosInstance,
+	searchProductList,
+	setItemWithExpireTime,
+	sortByNewestProductList,
+	sortByOrdersProductList,
+} from "@/utils";
 import styled from "@emotion/styled";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 
 interface bannerProps {
@@ -87,6 +93,9 @@ function Index() {
 	const [isPlaying, setIsPlaying] = useState(true);
 	const [selectedCode, setSelectedCode] = useState("");
 	const [searchedProductList, setSearchedProductList] = useState<Product[]>();
+	const [sortedProductList, setSortedProductList] = useState<Product[]>();
+	const [sortedFilteredProductList, setSortedFilteredProductList] =
+		useState<Product[]>();
 
 	async function fetchProducts({ pageParam = 1 }) {
 		try {
@@ -148,6 +157,56 @@ function Index() {
 		}
 	}
 
+	const handleSortByOrders = useCallback(() => {
+		if (fetchedProductList) {
+			if (fetchedProductList.length === 0) return;
+
+			let sortedProductList =
+				searchedProductList && searchedProductList.length > 0
+					? sortByOrdersProductList([...searchedProductList])
+					: sortByOrdersProductList([...fetchedProductList]);
+
+			if (searchedProductList && searchedProductList.length > 0) {
+				setSearchedProductList(sortedProductList);
+			} else {
+				setSortedProductList(sortedProductList);
+			}
+
+			if (fetchedFilterProductList && fetchedFilterProductList.length > 0) {
+				setSortedFilteredProductList(
+					sortByOrdersProductList([...fetchedFilterProductList]),
+				);
+			}
+
+			setItemWithExpireTime("sortedProductList", sortedProductList, 5000 * 100);
+		}
+	}, [fetchedProductList, searchedProductList, fetchedFilterProductList]);
+
+	const handleSortByNewest = useCallback(() => {
+		if (fetchedProductList) {
+			if (fetchedProductList.length === 0) return;
+
+			let sortedProductList =
+				searchedProductList && searchedProductList.length > 0
+					? sortByNewestProductList([...searchedProductList])
+					: sortByNewestProductList([...fetchedProductList]);
+
+			if (searchedProductList && searchedProductList.length > 0) {
+				setSearchedProductList(sortedProductList);
+			} else {
+				setSortedProductList(sortedProductList);
+			}
+
+			if (fetchedFilterProductList && fetchedFilterProductList.length > 0) {
+				setSortedFilteredProductList(
+					sortByNewestProductList([...fetchedFilterProductList]),
+				);
+			}
+
+			setItemWithExpireTime("sortedProductList", sortedProductList, 5000 * 100);
+		}
+	}, [fetchedProductList, searchedProductList, fetchedFilterProductList]);
+
 	useEffect(() => {
 		if (category) {
 			const selectedCategory = category.find(
@@ -158,6 +217,10 @@ function Index() {
 			}
 		}
 	}, [categoryValue]);
+
+	useEffect(() => {
+		setSortedFilteredProductList([]);
+	}, [fetchedFilterProductList]);
 
 	useEffect(() => {
 		async function fetchSearchResult() {
@@ -230,8 +293,12 @@ function Index() {
 							showable={!!searchKeyword}
 						/>
 						<FilterContainer>
-							<FilterButton type="submit">인기순</FilterButton>
-							<FilterButton type="submit">최신순</FilterButton>
+							<FilterButton type="button" onClick={handleSortByOrders}>
+								인기순
+							</FilterButton>
+							<FilterButton type="button" onClick={handleSortByNewest}>
+								최신순
+							</FilterButton>
 							<FilterSelect showable={!searchKeyword}>
 								<select
 									value={categoryValue}
@@ -272,6 +339,15 @@ function Index() {
 								  fetchedFilterProductList !== undefined ? (
 									fetchedFilterProductList.length === 0 ? (
 										<span className="emptyList">해당하는 상품이 없습니다.</span>
+									) : sortedFilteredProductList &&
+									  sortedFilteredProductList.length !== 0 ? (
+										sortedFilteredProductList.map((product: Product) => (
+											<ProductListItem
+												key={product._id}
+												product={product}
+												bookmark
+											/>
+										))
 									) : (
 										fetchedFilterProductList.map((product: Product) => (
 											<ProductListItem
@@ -281,6 +357,14 @@ function Index() {
 											/>
 										))
 									)
+								) : sortedProductList ? (
+									sortedProductList.map((product: Product) => (
+										<ProductListItem
+											key={product._id}
+											product={product}
+											bookmark
+										/>
+									))
 								) : (
 									fetchedProductList?.map((product: Product) => (
 										<ProductListItem

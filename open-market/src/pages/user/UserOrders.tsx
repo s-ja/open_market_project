@@ -1,4 +1,3 @@
-import { FilterButton, FilterContainer } from "@/components/FilterComponent";
 import HelmetSetup from "@/components/HelmetSetup";
 import { ProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
@@ -95,10 +94,6 @@ function UserOrders() {
 			/>
 			<Heading>구매내역</Heading>
 			<SearchBar onClick={handleSearchKeyword} searchRef={searchRef} showable />
-			<FilterContainer>
-				<FilterButton type="submit">인기순</FilterButton>
-				<FilterButton type="submit">최신순</FilterButton>
-			</FilterContainer>
 			{isLoading ? (
 				<ProductListSkeleton />
 			) : (

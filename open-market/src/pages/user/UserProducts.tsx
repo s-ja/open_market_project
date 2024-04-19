@@ -15,19 +15,11 @@ import {
 	axiosInstance,
 	searchProductList,
 	setItemWithExpireTime,
+	sortByNewestProductList,
+	sortByProfitProductList,
 } from "@/utils";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
-
-function sortByProfitProductList(list: Product[]) {
-	return list.sort((a, b) => b.buyQuantity * b.price - a.buyQuantity * a.price);
-}
-
-function sortByNewestProductList(list: Product[]) {
-	return list.sort((a, b) => {
-		return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-	});
-}
 
 function UserProducts() {
 	const searchRef = useRef<HTMLInputElement>(null);

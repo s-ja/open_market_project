@@ -26,6 +26,7 @@ const StyledSearchBar = styled.form<DisplayProps>`
 	width: 1160px;
 	height: auto;
 	position: relative;
+	margin-bottom: ${Common.space.spacingLg};
 
 	label {
 		display: ${Common.a11yHidden};
