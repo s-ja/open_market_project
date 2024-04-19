@@ -23,6 +23,8 @@ import {
 import { Common } from "@/styles/common";
 import { axiosInstance, searchProductList } from "@/utils";
 import styled from "@emotion/styled";
+import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
+import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -37,22 +39,43 @@ const BannerSection = styled.section<bannerProps>`
 	height: auto;
 	background-color: ${Common.colors.black};
 	padding-top: 80px;
+	position: relative;
+
 	video {
 		width: 100%;
 		height: 500px;
 		object-fit: cover;
 		aspect-ratio: 16 / 9;
 	}
+
+	.description {
+		position: absolute;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 30px;
+		width: 100%;
+		bottom: 0px;
+		padding: 200px 0;
+		font-size: xx-large;
+		font-weight: 800;
+		color: white;
+		text-shadow: 5px 3px 3px rgba(19, 4, 4, 0.3);
+	}
+
+	.playingButton {
+		background-color: transparent;
+		border: 1px solid ${Common.colors.gray2};
+		border-radius: 50%;
+		position: absolute;
+		bottom: 20px;
+		left: 20px;
+	}
 `;
-
-const getBookmarkData = async () => {
-	const { data } = await axiosInstance.get(`/bookmarks/`);
-	console.log(data, "sdafdsd");
-};
-
 function Index() {
 	const searchRef = useRef<HTMLInputElement>(null);
 	const paginationButtonRef = useRef(null);
+	const videoRef = useRef<HTMLVideoElement>(null);
 
 	const category = useRecoilValue(codeState);
 
@@ -61,6 +84,7 @@ function Index() {
 	const [categoryValue, setCategoryValue] =
 		useRecoilState<string>(categoryValueState);
 
+	const [isPlaying, setIsPlaying] = useState(true);
 	const [selectedCode, setSelectedCode] = useState("");
 	const [searchedProductList, setSearchedProductList] = useState<Product[]>();
 
@@ -112,9 +136,17 @@ function Index() {
 			searchRef.current!.value.split(" ").join("").toLowerCase(),
 		);
 	}
-	useEffect(() => {
-		getBookmarkData();
-	}, []);
+
+	function togglePlay() {
+		if (videoRef.current !== null) {
+			if (isPlaying) {
+				videoRef.current.pause();
+			} else {
+				videoRef.current.play();
+			}
+			setIsPlaying(!isPlaying);
+		}
+	}
 
 	useEffect(() => {
 		if (category) {
@@ -157,10 +189,38 @@ function Index() {
 			) : (
 				<div>
 					<BannerSection showable={searchKeyword ? false : true}>
-						<video autoPlay loop muted>
+						<video
+							autoPlay
+							loop
+							muted
+							ref={videoRef} // 비디오 요소에 대한 참조 설정
+						>
 							<source src="/videos/mainVideo.mp4" type="video/mp4" />
 							메인 영상 배너
 						</video>
+						<div className="description">
+							<span>소규모 음원 제작자들을 위한 오픈마켓 플랫폼</span>
+							<span>MODI</span>
+						</div>
+						<button className="playingButton" onClick={togglePlay}>
+							{isPlaying ? (
+								<PauseRoundedIcon
+									style={{
+										fontSize: 45,
+										textShadow: "2px 2px 5px rgba(255, 255, 255, 0.6)",
+										color: "white",
+									}}
+								/>
+							) : (
+								<PlayArrowRoundedIcon
+									style={{
+										fontSize: 45,
+										textShadow: "2px 2px 5px rgba(255, 255, 255, 0.6)",
+										color: "white",
+									}}
+								/>
+							)}
+						</button>
 					</BannerSection>
 					<ProductSection isIndex={!searchKeyword}>
 						<Heading>메인페이지</Heading>
