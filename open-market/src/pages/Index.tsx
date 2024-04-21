@@ -73,11 +73,12 @@ const BannerSection = styled.section<bannerProps>`
 
 	.playingButton {
 		background-color: transparent;
-		border: 1px solid ${Common.colors.gray2};
+		border: 3px solid ${Common.colors.white};
 		border-radius: 50%;
 		position: absolute;
 		bottom: 20px;
 		left: 20px;
+		display: flex;
 	}
 `;
 function Index() {
@@ -276,21 +277,25 @@ function Index() {
 						</div>
 						<button className="playingButton" onClick={togglePlay}>
 							{isPlaying ? (
-								<PauseRoundedIcon
-									style={{
-										fontSize: 45,
-										textShadow: "2px 2px 5px rgba(255, 255, 255, 0.6)",
-										color: "white",
-									}}
-								/>
+								<span aria-label="배너 영상 정지 버튼">
+									<PauseRoundedIcon
+										style={{
+											fontSize: 35,
+											textShadow: "2px 2px 5px rgba(255, 255, 255, 0.6)",
+											color: "white",
+										}}
+									/>
+								</span>
 							) : (
-								<PlayArrowRoundedIcon
-									style={{
-										fontSize: 45,
-										textShadow: "2px 2px 5px rgba(255, 255, 255, 0.6)",
-										color: "white",
-									}}
-								/>
+								<span aria-label="배너 영상 재생 버튼">
+									<PlayArrowRoundedIcon
+										style={{
+											fontSize: 35,
+											textShadow: "2px 2px 5px rgba(255, 255, 255, 0.6)",
+											color: "white",
+										}}
+									/>
+								</span>
 							)}
 						</button>
 					</BannerSection>
@@ -302,13 +307,24 @@ function Index() {
 							showable={!!searchKeyword}
 						/>
 						<FilterContainer>
-							<FilterButton type="button" onClick={handleSortByOrders}>
+							<FilterButton
+								type="button"
+								onClick={handleSortByOrders}
+								aria-label="인기 내림차순 정렬"
+							>
 								인기순
 							</FilterButton>
-							<FilterButton type="button" onClick={handleSortByNewest}>
+							<FilterButton
+								type="button"
+								onClick={handleSortByNewest}
+								aria-label="등록일별 오름차순 정렬"
+							>
 								최신순
 							</FilterButton>
-							<FilterSelect showable={!searchKeyword}>
+							<FilterSelect
+								showable={!searchKeyword}
+								aria-label="장르별 모아보기"
+							>
 								<select
 									value={categoryValue}
 									onChange={(e) => {
@@ -392,6 +408,11 @@ function Index() {
 								}}
 								disabled={!hasNextPage || isFetchingNextPage}
 								isDisable={!hasNextPage || isFetchingNextPage}
+								aria-label={
+									hasNextPage
+										? "리스트에 4개의 상품을 더 표시합니다."
+										: "더 이상 표시할 상품이 없습니다."
+								}
 							>
 								더보기
 							</MoreButton>

@@ -275,7 +275,10 @@ function ProductManage() {
 				<ProductManagementSkeleton />
 			) : (
 				<ProductInfoWrapper>
-					<UserProductListLink to={`/user/${currentUser!._id}/products`}>
+					<UserProductListLink
+						to={`/user/${currentUser!._id}/products`}
+						aria-label="판매 상품 목록으로 이동"
+					>
 						&gt; 판매 상품 목록
 					</UserProductListLink>
 					<FormTopLayout>

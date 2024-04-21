@@ -18,6 +18,7 @@ interface MusicPlayerProps {
 	audioId: number;
 	soundFile: ProductFiles;
 	showable?: boolean;
+	name: string;
 }
 
 interface WidthProps {
@@ -42,7 +43,7 @@ const PlayButton = styled.button`
 	border: none;
 `;
 
-function MusicPlayer({ soundFile, audioId, showable }: MusicPlayerProps) {
+function MusicPlayer({ soundFile, audioId, showable, name }: MusicPlayerProps) {
 	const [currentAudioId, setCurrentAudioId] =
 		useRecoilState(currentAudioIdState);
 
@@ -135,9 +136,13 @@ function MusicPlayer({ soundFile, audioId, showable }: MusicPlayerProps) {
 		<PlayerContainer showable={showable}>
 			<PlayButton onClick={handlePlayAndPauseMusic}>
 				{isPlaying ? (
-					<PauseIcon fontSize="large" />
+					<span aria-label={`${name} 음원의 재생을 멈춥니다.`}>
+						<PauseIcon fontSize="large" />
+					</span>
 				) : (
-					<PlayArrowIcon fontSize="large" />
+					<span aria-label={`${name} 음원을 재생합니다.`}>
+						<PlayArrowIcon fontSize="large" />
+					</span>
 				)}
 			</PlayButton>
 			<PlayerSlider

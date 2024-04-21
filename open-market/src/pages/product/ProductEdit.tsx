@@ -419,7 +419,10 @@ function ProductEdit() {
 										{audioLoading ? (
 											<LoadingSpinner width="211px" height="116px" upload />
 										) : postItem?.extra.soundFile.path !== "" ? (
-											<span className="UploadAudioFile">
+											<span
+												className="UploadAudioFile"
+												aria-label={`${postItem.extra.soundFile.originalname} 파일이 업로드 되어 있습니다.`}
+											>
 												{postItem?.extra.soundFile.name}
 											</span>
 										) : (
@@ -488,7 +491,7 @@ function ProductEdit() {
 						<FunctionalButton
 							type="submit"
 							handleFn={handleEditProduct}
-							text="수정"
+							text="수정 완료"
 						/>
 					</FlexLayout>
 				</form>

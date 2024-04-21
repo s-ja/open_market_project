@@ -69,7 +69,12 @@ export function ListControlPanel({
 	showable?: boolean;
 }) {
 	return (
-		<StyledControlPanel showable={showable}>
+		<StyledControlPanel
+			showable={showable}
+			aria-label={`${secondsToHms(duration)} 중 현재 ${secondsToHms(
+				currentTime,
+			)}을 재생중입니다.`}
+		>
 			<span>{secondsToHms(currentTime)}</span>
 			<span>{secondsToHms(duration)}</span>
 		</StyledControlPanel>
@@ -84,7 +89,11 @@ export function DetailControlPanel({
 	currentTime: number;
 }) {
 	return (
-		<StyledDetailControlPanel>
+		<StyledDetailControlPanel
+			aria-label={`${secondsToHms(duration)} 중 현재 ${secondsToHms(
+				currentTime,
+			)}을 재생중입니다.`}
+		>
 			<span>{secondsToHms(currentTime)}</span>
 			<span>{secondsToHms(duration)}</span>
 		</StyledDetailControlPanel>

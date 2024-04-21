@@ -450,7 +450,11 @@ function SignUp() {
 										placeholder="이메일"
 										required={true}
 									/>
-									<button type="button" onClick={checkEmailDuplication}>
+									<button
+										type="button"
+										onClick={checkEmailDuplication}
+										aria-label="입력 이메일 중복 확인"
+									>
 										중복 확인
 									</button>
 								</div>
@@ -523,7 +527,9 @@ function SignUp() {
 								</div>
 							</li>
 							<li>
-								<button type="button">약관보기</button>
+								<button type="button" aria-label="이용 약관 전체 보기">
+									약관보기
+								</button>
 								<div>
 									<StyledCheckbox
 										id="termsOfUse"
@@ -543,7 +549,12 @@ function SignUp() {
 								</div>
 							</li>
 							<li>
-								<button type="button">약관보기</button>
+								<button
+									type="button"
+									aria-label="개인정보 수집 및 이용 약관 전체 보기"
+								>
+									약관보기
+								</button>
 								<div>
 									<StyledCheckbox
 										id="providingPersonalInformation"
@@ -565,7 +576,12 @@ function SignUp() {
 								</div>
 							</li>
 							<li>
-								<button type="button">약관보기</button>
+								<button
+									type="button"
+									aria-label="마케팅 정보 수신 동의 약관 전체 보기"
+								>
+									약관보기
+								</button>
 								<div>
 									<StyledCheckbox
 										id="recievingMarketingInformation"

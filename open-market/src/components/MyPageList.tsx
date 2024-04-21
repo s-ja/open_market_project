@@ -95,7 +95,11 @@ function MyPageList({
 					<span>{emptyMessage}</span>
 				)}
 			</List>
-			{linkText && linkUrl && <StyledLink to={linkUrl}>{linkText}</StyledLink>}
+			{linkText && linkUrl && (
+				<StyledLink to={linkUrl} aria-label={`${title} 리스트로 이동`}>
+					{linkText}
+				</StyledLink>
+			)}
 		</Article>
 	);
 }

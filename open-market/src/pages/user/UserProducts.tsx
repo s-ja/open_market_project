@@ -138,10 +138,18 @@ function UserProducts() {
 						showable
 					/>
 					<FilterContainer>
-						<FilterButton type="button" onClick={handleSortByProfit}>
+						<FilterButton
+							type="button"
+							onClick={handleSortByProfit}
+							aria-label="수익순 내림차순 정렬"
+						>
 							수익순
 						</FilterButton>
-						<FilterButton type="button" onClick={handleSortByNewest}>
+						<FilterButton
+							type="button"
+							onClick={handleSortByNewest}
+							aria-label="등록일별 오름차순 정렬"
+						>
 							최신순
 						</FilterButton>
 					</FilterContainer>
