@@ -7,6 +7,7 @@ import { axiosInstance } from "@/utils";
 import styled from "@emotion/styled";
 import Skeleton from "@mui/material/Skeleton";
 import { useQuery } from "@tanstack/react-query";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 
