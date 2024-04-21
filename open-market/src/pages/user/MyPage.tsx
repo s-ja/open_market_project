@@ -34,9 +34,10 @@ const Article = styled.article`
 	margin: 20px auto;
 	position: relative;
 	padding: ${Common.space.spacingMd};
-	padding-left: 100px;
 	display: flex;
-	gap: 20px;
+	justify-content: center;
+	align-items: center;
+	gap: ${Common.space.spacingXl};
 `;
 
 const Info = styled.div`
@@ -51,7 +52,7 @@ const PersonalInfo = styled.div`
 	flex-direction: column;
 	gap: 10px;
 	background-color: ${Common.colors.white};
-	width: 979px;
+	width: 879px;
 	height: 95px;
 	border-radius: 10px;
 	padding: 6px 12px;
@@ -59,21 +60,16 @@ const PersonalInfo = styled.div`
 
 const PersonalInfoItem = styled.div`
 	display: flex;
-	flex-direction: column;
-	flex-wrap: wrap;
-	width: 960px;
-	height: 60px;
-	gap: 5px;
+	align-items: center;
+	height: 30px;
+	gap: ${Common.space.spacingXl};
 	div {
 		display: flex;
-		gap: 10px;
-		& > * {
-			font-size: ${Common.font.size.sm};
-			font-weight: ${Common.font.weight.regular};
-		}
+		gap: ${Common.space.spacingLg};
 		& > h5 {
-			width: 100px;
+			font-size: 18px;
 		}
+
 		& > p {
 			color: ${Common.colors.gray};
 			text-decoration: underline;
@@ -94,7 +90,7 @@ const Comment = styled.div`
 	flex-direction: column;
 	gap: 10px;
 	background-color: ${Common.colors.white};
-	width: 979px;
+	width: 879px;
 	height: 95px;
 	border-radius: 10px;
 	padding: 6px 12px;
@@ -103,33 +99,34 @@ const Comment = styled.div`
 const CommentInfo = styled.div`
 	height: 60px;
 	margin-top: 7px;
-	display: flex;
-	flex-flow: column nowrap;
-	gap: 5px;
-	font-size: ${Common.font.size.sm};
-	font-weight: ${Common.font.weight.regular};
 
-	li {
+	ul {
 		display: flex;
-		flex-flow: row nowrap;
-		gap: ${Common.space.spacingMd};
+		flex-direction: column;
+		gap: 8px;
 
-		p {
-			width: 100px;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-		}
+		li {
+			display: flex;
+			gap: ${Common.space.spacingMd};
 
-		span {
-			display: block;
-			width: 750px;
-			height: ${Common.font.size.lg};
-			color: ${Common.colors.gray};
-			text-decoration: underline;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
+			p {
+				width: 100px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				font-size: 18px;
+				font-weight: ${Common.font.weight.bold};
+			}
+
+			span {
+				width: 750px;
+				color: ${Common.colors.gray};
+				text-decoration: underline;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				font-size: 16px;
+			}
 		}
 	}
 `;
@@ -140,11 +137,11 @@ const StyledLink = styled(Link)`
 	right: 5px;
 	bottom: 3px;
 	background-color: ${Common.colors.emphasize};
-	width: 83px;
-	height: 18px;
+	width: 100px;
+	height: 20px;
 	text-align: center;
-	line-height: 18px;
-	font-size: ${Common.font.size.sm};
+	line-height: 20px;
+	font-size: 16px;
 	border-radius: 10px;
 	color: inherit;
 	& > visited {
@@ -193,6 +190,19 @@ async function fetchUserReplies() {
 	const response = await axiosInstance.get(`/replies`);
 	return response.data.item;
 }
+
+const formatPhoneNumber = (phoneNumber: number) => {
+	// Ensure the input is a string
+	const cleaned = ("" + phoneNumber).replace(/\D/g, "");
+	// Check if the input is of correct length
+	if (cleaned.length === 11) {
+		const match = cleaned.match(/^(\d{3})(\d{4})(\d{4})$/);
+		if (match) {
+			return `${match[1]}-${match[2]}-${match[3]}`;
+		}
+	}
+	return phoneNumber;
+};
 
 function MyPage() {
 	useRequireAuth();
@@ -265,16 +275,16 @@ function MyPage() {
 								<Title>회원정보</Title>
 								<PersonalInfoItem>
 									<div>
-										<h5>이메일</h5>
+										<h5>이메일 : </h5>
 										<p>{userInfo.email}</p>
 									</div>
 									<div>
-										<h5>이름</h5>
+										<h5>이름 : </h5>
 										<p>{userInfo.name}</p>
 									</div>
 									<div>
-										<h5>휴대폰 번호</h5>
-										<p>{userInfo.phone}</p>
+										<h5>휴대폰 번호 : </h5>
+										<p>{formatPhoneNumber(userInfo.phone)}</p>
 									</div>
 								</PersonalInfoItem>
 								<StyledLink to={`/useredit/${currentUser!._id}`}>
