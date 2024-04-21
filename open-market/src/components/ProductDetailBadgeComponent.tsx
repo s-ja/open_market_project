@@ -188,7 +188,10 @@ function ProductDetailExtraLink({
 	return (
 		<ProductExtraLinkContainer>
 			<div>
-				<BookmarkButton onClick={handleScrap}>
+				<BookmarkButton
+					onClick={handleScrap}
+					aria-label={bookmark ? "북마크에서 제거" : "북마크에 추가"}
+				>
 					{bookmark ? (
 						<BookmarkIcon sx={{ color: `primary.main` }} />
 					) : (
@@ -198,18 +201,28 @@ function ProductDetailExtraLink({
 					{bookmarkCount}
 				</BookmarkButton>
 				{!currentUser ? (
-					<NoUserPurchaseButton type="button" onClick={handelSignIn}>
+					<NoUserPurchaseButton
+						type="button"
+						onClick={handelSignIn}
+						aria-label="음원 상품 구매하기 버튼"
+					>
 						<CheckIcon />
 						구매하기
 						{product?.buyQuantity ? product?.buyQuantity : 0}
 					</NoUserPurchaseButton>
 				) : currentUser && currentUser._id === product?.seller_id ? (
-					<ProductExtraLink to={`/productmanage/${product?._id}`}>
+					<ProductExtraLink
+						to={`/productmanage/${product?._id}`}
+						aria-label="판매 음원 관리 페이지로 이동"
+					>
 						<CheckIcon />
 						상품 관리
 					</ProductExtraLink>
 				) : (currentUser && !order) || order === undefined ? (
-					<ProductExtraLink to={`/productpurchase/${product?._id}`}>
+					<ProductExtraLink
+						to={`/productpurchase/${product?._id}`}
+						aria-label="음원 상품 구매하기 버튼"
+					>
 						<CheckIcon />
 						구매하기
 						{product?.buyQuantity ? product?.buyQuantity : 0}
@@ -218,6 +231,7 @@ function ProductDetailExtraLink({
 					<DownloadLink
 						href={`${API_KEY}/files/download/${product?.extra?.soundFile.name}?name=${product?.extra?.soundFile.originalname}`}
 						download={true}
+						aria-label="음원 상품 다운로드 버튼"
 					>
 						<DownloadIcon />
 						다운로드

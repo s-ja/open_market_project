@@ -140,6 +140,7 @@ export function ShowStarRating({ rating }: { rating: number }) {
 					fontSize="inherit"
 				/>
 			}
+			aria-label={`매겨진 별점은 ${Number(rating)}점 입니다.`}
 		/>
 	);
 }
@@ -151,16 +152,20 @@ function ReplyListItem({ reply }: { reply: Reply }) {
 				{reply?.extra?.profileImage ? (
 					<ReplyUserProfileImage
 						src={reply.extra?.profileImage}
-						alt={`${reply.user.name} 프로필 이미지`}
+						alt={`${reply.user.name}님의 프로필 이미지`}
 					/>
 				) : (
-					<AccountCircleIcon />
+					<span aria-label={`${reply.user.name}님의 프로필 이미지`}>
+						<AccountCircleIcon />
+					</span>
 				)}
 
-				<ReplyBlock user>{reply.user.name}</ReplyBlock>
+				<ReplyBlock user aria-label="댓글을 작성한 사람">
+					{reply.user.name}
+				</ReplyBlock>
 			</div>
 			<ReplyBlock>
-				<span>{reply.content}</span>
+				<span aria-label="작성된 댓글 내용">{reply.content}</span>
 				<ShowStarRating rating={reply.rating} />
 			</ReplyBlock>
 		</StyledReplyListItem>

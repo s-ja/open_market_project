@@ -234,7 +234,7 @@ function Header() {
 					size="small"
 					variant="outlined"
 					placeholder="검색어를 입력하세요"
-					label="검색"
+					label="검색어 입력"
 					value={searchInput}
 					onChange={handleSearchInputChange}
 					onKeyDown={(e) =>
@@ -260,6 +260,7 @@ function Header() {
 							variant="outlined"
 							color="inherit"
 							onClick={() => navigate("/productregistration")}
+							aria-label="음원 상품 업로드 버튼"
 						>
 							업로드
 						</UploadButton>
@@ -294,7 +295,10 @@ function Header() {
 				)}
 				{!currentUser && (
 					<ButtonWrapper>
-						<UserButton onClick={handleProfileMenuOpen}>
+						<UserButton
+							onClick={handleProfileMenuOpen}
+							aria-label="사용자 메뉴"
+						>
 							<AccountCircle />
 						</UserButton>
 						<Menu

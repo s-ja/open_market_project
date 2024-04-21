@@ -277,13 +277,16 @@ function ProductPurchase() {
 							</FlexLayout>
 							<ContentWrapper>
 								<Textarea readOnly={true} content={product?.content} small />
-								<span className="ContentInHash">
+								<span
+									className="ContentInHash"
+									aria-label="상품에 등록된 해시태그 목록"
+								>
 									{product?.extra?.tags?.map((tag) => `#${tag} `)}
 								</span>
 							</ContentWrapper>
 						</FormTopRightLayout>
 					</FormTopLayout>
-					<ProductItemWrapper large>
+					<ProductItemWrapper large aria-label="결제 정보 : 가격">
 						<ProductLabel>결제 정보</ProductLabel>
 						<ProductValue large>
 							{product?.price !== undefined

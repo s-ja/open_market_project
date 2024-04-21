@@ -143,6 +143,7 @@ const UserImage = styled.img`
 	width: 100px;
 	height: 100px;
 	border-radius: 50%;
+	object-fit: cover;
 `;
 
 const StyledCheckbox = styled(Checkbox)`
@@ -363,7 +364,6 @@ function UserEdit() {
 					<legend>회원정보 수정</legend>
 
 					<ul>
-						{/* 프로필 이미지 수정 */}
 						<UserImageWrapper>
 							<UserImage
 								src={userData.extra.profileImage || "/user.svg"}
@@ -375,8 +375,15 @@ function UserEdit() {
 									value={uploadedFileName || "첨부파일"}
 									placeholder="첨부파일"
 									readOnly={true}
+									aria-label="프로필 이미지 첨부 파일 경로"
+									tabIndex={-1}
 								/>
-								<label htmlFor="userProfileImage">파일찾기</label>
+								<label
+									htmlFor="userProfileImage"
+									aria-label="프로필 이미지 파일 첨부 버튼"
+								>
+									파일찾기
+								</label>
 								<input
 									type="file"
 									accept="image/*"

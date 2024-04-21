@@ -129,6 +129,11 @@ function UserOrders() {
 						onClick={() => fetchNextPage()}
 						disabled={!hasNextPage || isFetchingNextPage}
 						isDisable={!hasNextPage || isFetchingNextPage}
+						aria-label={
+							hasNextPage
+								? "리스트에 4개의 상품을 더 표시합니다."
+								: "더 이상 표시할 상품이 없습니다."
+						}
 					>
 						더보기
 					</MoreButton>

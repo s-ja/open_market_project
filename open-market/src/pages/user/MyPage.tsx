@@ -299,7 +299,9 @@ function MyPage() {
 										<span>작성한 댓글이 없습니다.</span>
 									)}
 								</CommentInfo>
-								<StyledLink to={"/replies"}>전체보기</StyledLink>
+								<StyledLink to={"/replies"} aria-label="내가 쓴 댓글 전체보기">
+									전체보기
+								</StyledLink>
 							</Comment>
 						</Info>
 					</>

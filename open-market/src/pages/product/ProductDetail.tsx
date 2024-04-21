@@ -225,10 +225,14 @@ function ProductDetail() {
 										{currentUser?.profileImage ? (
 											<ReplyUserProfileImage
 												src={currentUser?.profileImage}
-												alt={`${currentUser?.name} 프로필 이미지`}
+												alt={`${currentUser?.name}님의 프로필 이미지`}
 											/>
 										) : (
-											<AccountCircleIcon />
+											<span
+												aria-label={`${currentUser?.name}님의 프로필 이미지`}
+											>
+												<AccountCircleIcon />
+											</span>
 										)}
 									</span>
 									<ReplyBlock user>{currentUser?.name}</ReplyBlock>
@@ -252,6 +256,7 @@ function ProductDetail() {
 													fontSize="inherit"
 												/>
 											}
+											aria-label={`별점 선택: ${ratingValue}점`}
 										/>
 									</div>
 									<label htmlFor="content" className="a11yHidden">
@@ -269,7 +274,11 @@ function ProductDetail() {
 											)}
 											required
 										/>
-										<button type="submit" onClick={handleReplySubmit}>
+										<button
+											type="submit"
+											onClick={handleReplySubmit}
+											aria-label="작성한 댓글 등록"
+										>
 											작성하기
 										</button>
 									</div>
@@ -287,11 +296,20 @@ function ProductDetail() {
 						</ul>
 						{allReplies !== undefined &&
 						currentPage * REPLIES_PER_PAGE < allReplies?.length ? (
-							<MoreButton onClick={handleMoreReplies} isReply>
+							<MoreButton
+								onClick={handleMoreReplies}
+								isReply
+								aria-label="댓글을 추가로 더 표시합니다."
+							>
 								더보기
 							</MoreButton>
 						) : (
-							<MoreButton isReply disabled isDisable>
+							<MoreButton
+								isReply
+								disabled
+								isDisable
+								aria-label="더이상 표시할 댓글이 없습니다."
+							>
 								더보기
 							</MoreButton>
 						)}

@@ -180,7 +180,10 @@ export function ProductListItem({ product, bookmark }: ProductItemProps) {
 
 	return (
 		<ListItem key={product?._id}>
-			<StyledTitleLink to={`/productdetail/${product._id}`}>
+			<StyledTitleLink
+				to={`/productdetail/${product._id}`}
+				aria-label={`${product.name}의 상세 페이지로 이동`}
+			>
 				<img
 					src={
 						"image" in product
@@ -195,6 +198,7 @@ export function ProductListItem({ product, bookmark }: ProductItemProps) {
 				soundFile={product.extra?.soundFile!}
 				audioId={product?._id}
 				showable
+				name={product.name}
 			/>
 			{"image" in product ? (
 				<a
@@ -215,6 +219,7 @@ export function ProductListItem({ product, bookmark }: ProductItemProps) {
 					type="submit"
 					className="bookmark"
 					onClick={() => postScrap(product._id, currentUser._id)}
+					aria-label={`${product.name} 상품을 북마크에 추가합니다.`}
 				>
 					<ThemeProvider theme={theme}>
 						{bookmark ? (
@@ -245,6 +250,7 @@ export function UserProductListItem({ product }: { product: Product }) {
 			<MusicPlayer
 				soundFile={product.extra?.soundFile!}
 				audioId={product?._id}
+				name={product.name}
 			/>
 			<StyledElementSpan>
 				판매 개수: <span>{product?.buyQuantity}</span>
@@ -263,16 +269,20 @@ export function UserProductListItem({ product }: { product: Product }) {
 			</StyledElementSpan>
 			<ThemeProvider theme={theme}>
 				{product.show ? (
-					<span aria-label="잠금 해제">
+					<span aria-label="공개되어 있는 상품입니다.">
 						<LockOpenIcon sx={{ color: `primary.dark` }} />
 					</span>
 				) : (
-					<span aria-label="잠금">
+					<span aria-label="비공개되어 있는 상품입니다.">
 						<LockIcon sx={{ color: `primary.main` }} />
 					</span>
 				)}
 			</ThemeProvider>
-			<Link className="manageLink" to={`/productmanage/${product?._id}`}>
+			<Link
+				className="manageLink"
+				to={`/productmanage/${product?._id}`}
+				aria-label={`${product.name}의 상세 페이지로 이동합니다.`}
+			>
 				상세보기
 			</Link>
 		</ListItem>
