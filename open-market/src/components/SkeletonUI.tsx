@@ -214,3 +214,7 @@ export function ProductListSkeleton() {
 		</Box>
 	);
 }
+
+export function AudioSkeleton() {
+	return <Skeleton variant="rounded" width={813} height={32} />;
+}

@@ -103,11 +103,7 @@ function UserOrders() {
 							<span className="emptyList">해당하는 구매내역이 없습니다.</span>
 						) : searchedOrderList && searchedOrderList.length !== 0 ? (
 							searchedOrderList.map((order) => (
-								<ProductListItem
-									key={order._id}
-									product={order.products[0]}
-									bookmark={false}
-								/>
+								<ProductListItem key={order._id} product={order.products[0]} />
 							))
 						) : fetchedOrderProductList.length !== 0 ? (
 							fetchedOrderProductList.map((order) => {
@@ -115,7 +111,6 @@ function UserOrders() {
 									<ProductListItem
 										key={order._id}
 										product={order.products[0]}
-										bookmark={false}
 									/>
 								);
 							})
