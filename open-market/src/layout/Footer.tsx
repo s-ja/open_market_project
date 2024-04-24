@@ -12,6 +12,7 @@ const FooterContainer = styled.footer`
 	flex-direction: column;
 	gap: 8px;
 	color: ${Common.colors.white};
+	height: 100px;
 `;
 
 const FooterLink = styled(Link)`
