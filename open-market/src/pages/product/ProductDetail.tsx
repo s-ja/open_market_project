@@ -51,6 +51,7 @@ function ProductDetail() {
 	const [ratingValue, setRatingValue] = useState<number>(3);
 	const [replyContent, setReplyContent] = useState<string>();
 	const [__, setHover] = useState(-1);
+	const [isReplyLoading, setIsReplyLoading] = useState<boolean>(false);
 
 	async function fetchUserBookmarks(productId: string | undefined) {
 		try {
@@ -98,6 +99,17 @@ function ProductDetail() {
 
 	async function handleReplySubmit(e: { preventDefault: () => void }) {
 		e.preventDefault();
+
+		if (!replyContent || replyContent?.trim() === "")
+			return toast.error("내용을 입력해주세요!", {
+				ariaProps: {
+					role: "status",
+					"aria-live": "polite",
+				},
+			});
+
+		setIsReplyLoading(true);
+
 		try {
 			const response = await axiosInstance.post<ReplyResponse>(`/replies`, {
 				order_id: order!._id,
@@ -106,18 +118,24 @@ function ProductDetail() {
 				content: replyContent,
 				extra: { profileImage: currentUser?.profileImage },
 			});
-			if (response.data.ok) {
-				toast.success("댓글을 작성했습니다.", {
-					ariaProps: {
-						role: "status",
-						"aria-live": "polite",
-					},
-				});
-				replyRef.current!.value = "";
-				setRatingValue(3);
-				fetchProduct(productId!);
-			}
+
+			setTimeout(() => {
+				if (response.data.ok) {
+					toast.success("댓글을 작성했습니다.", {
+						ariaProps: {
+							role: "status",
+							"aria-live": "polite",
+						},
+					});
+					replyRef.current!.value = "";
+					setReplyContent("");
+					setRatingValue(3);
+					fetchProduct(productId!);
+					setIsReplyLoading(false);
+				}
+			}, 500);
 		} catch (error) {
+			setIsReplyLoading(false);
 			console.error(error);
 		}
 	}
@@ -278,8 +296,9 @@ function ProductDetail() {
 											type="submit"
 											onClick={handleReplySubmit}
 											aria-label="작성한 댓글 등록"
+											disabled={isReplyLoading}
 										>
-											작성하기
+											{isReplyLoading ? "업로드 중.." : "작성하기"}
 										</button>
 									</div>
 								</ReplyInputForm>
