@@ -300,6 +300,7 @@ function ProductDetailComponent({
 				<img
 					src={product?.mainImages[0].path}
 					alt={`${product?.name}의 앨범 아트`}
+					onError={(e) => (e.currentTarget.src = "/alt_cover.png")}
 				/>
 				{isPlaying ? (
 					<button

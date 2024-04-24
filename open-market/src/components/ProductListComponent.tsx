@@ -151,6 +151,7 @@ export function ProductListItem({ product }: ProductItemProps) {
 							: product.mainImages[0]?.path
 					}
 					alt={`${product.name}의 앨범 아트`}
+					onError={(e) => (e.currentTarget.src = "/alt_cover.png")}
 				/>
 				<span title={product.name}>{product.name}</span>
 				<ThemeProvider theme={theme}>
@@ -202,6 +203,7 @@ export function UserProductListItem({ product }: { product: Product }) {
 				<img
 					src={product?.mainImages[0]?.path}
 					alt={`${product?.name}의 앨범 아트`}
+					onError={(e) => (e.currentTarget.src = "/alt_cover.png")}
 				/>
 				<span title={product?.name}>{product?.name}</span>
 			</StyledTitleSpan>
