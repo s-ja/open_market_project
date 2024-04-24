@@ -1,7 +1,7 @@
 import { Common } from "@/styles/common";
 import { Global, css } from "@emotion/react";
 import { HelmetProvider, HelmetServerState } from "react-helmet-async";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import { codeState } from "@/states/categoryState";
 import { axiosInstance } from "@/utils";
@@ -12,7 +12,7 @@ import { useSetRecoilState } from "recoil";
 import ScrollToTop from "./components/ScrollToTop";
 import RootLayout from "./layout/RootLayout";
 import Index from "./pages/Index";
-import ErrorBoundary from "./pages/error/ErrorBoundary";
+import Error404 from "./pages/error/Error404";
 import ProductDetail from "./pages/product/ProductDetail";
 import ProductEdit from "./pages/product/ProductEdit";
 import ProductManage from "./pages/product/ProductManage";
@@ -48,6 +48,7 @@ function App() {
 			}
 		})();
 	});
+
 	return (
 		<QueryClientProvider client={queryClient}>
 			<ReactQueryDevtools initialIsOpen={false} />
@@ -59,11 +60,7 @@ function App() {
 				/>
 				<ScrollToTop />
 				<Routes>
-					<Route
-						path="/"
-						element={<RootLayout />}
-						errorElement={<ErrorBoundary />}
-					>
+					<Route path="/" element={<RootLayout />}>
 						<Route index element={<Index />} />
 						{/* sell */}
 						<Route
@@ -94,6 +91,9 @@ function App() {
 						{/* signin, signup */}
 						<Route path="signin" element={<SignIn />} />
 						<Route path="signup" element={<SignUp />} />
+						{/* 404 Error */}
+						<Route path="/err404" element={<Error404 />} />
+						<Route path="*" element={<Navigate replace to="/err404" />} />
 					</Route>
 				</Routes>
 			</HelmetProvider>
