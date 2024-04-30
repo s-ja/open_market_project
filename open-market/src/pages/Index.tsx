@@ -352,11 +352,7 @@ function Index() {
 										<span className="emptyList">해당하는 상품이 없습니다.</span>
 									) : (
 										searchedProductList.map((product) => (
-											<ProductListItem
-												key={product._id}
-												product={product}
-												bookmark
-											/>
+											<ProductListItem key={product._id} product={product} />
 										))
 									)
 								) : !searchKeyword &&
@@ -367,36 +363,20 @@ function Index() {
 									) : sortedFilteredProductList &&
 									  sortedFilteredProductList.length !== 0 ? (
 										sortedFilteredProductList.map((product: Product) => (
-											<ProductListItem
-												key={product._id}
-												product={product}
-												bookmark
-											/>
+											<ProductListItem key={product._id} product={product} />
 										))
 									) : (
 										fetchedFilterProductList.map((product: Product) => (
-											<ProductListItem
-												key={product._id}
-												product={product}
-												bookmark
-											/>
+											<ProductListItem key={product._id} product={product} />
 										))
 									)
 								) : sortedProductList ? (
 									sortedProductList.map((product: Product) => (
-										<ProductListItem
-											key={product._id}
-											product={product}
-											bookmark
-										/>
+										<ProductListItem key={product._id} product={product} />
 									))
 								) : (
 									fetchedProductList?.map((product: Product) => (
-										<ProductListItem
-											key={product._id}
-											product={product}
-											bookmark
-										/>
+										<ProductListItem key={product._id} product={product} />
 									))
 								)}
 							</ProductList>

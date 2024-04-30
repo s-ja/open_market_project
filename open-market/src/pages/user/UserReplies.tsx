@@ -1,38 +1,50 @@
 import HelmetSetup from "@/components/HelmetSetup";
 import { UserRepliesListItem } from "@/components/ProductListComponent";
+import { ProductListSkeleton } from "@/components/SkeletonUI";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
 	Heading,
+	MoreButton,
 	ProductContainer,
 	ProductList,
 	ProductSection,
 } from "@/styles/ProductListStyle";
 import { axiosInstance } from "@/utils";
-import { AxiosError } from "axios";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 export default function UserReplies() {
 	useRequireAuth();
-	const navigate = useNavigate();
 
-	const [replies, setReplies] = useState<Reply[]>([]);
+	const [displayReplies, setDisplayReplies] = useState<Reply[]>([]);
+	const [currentPage, setCurrentPage] = useState(2);
+	const REPLIES_PER_PAGE = 4;
 
 	async function fetchUserReplies() {
-		try {
-			const response = await axiosInstance.get<ReplyListResponse>(`/replies`);
-			setReplies(response.data.item);
-		} catch (error) {
-			if (error instanceof AxiosError && error.response?.status === 404) {
-				return navigate("/err404", { replace: true });
-			}
-			console.error(error);
-		}
+		const response = await axiosInstance.get(`/replies`);
+		return response.data.item;
+	}
+
+	const { data: userReplies, isLoading: isLoadingUserReplies } = useQuery({
+		queryKey: ["replies"],
+		queryFn: () => fetchUserReplies(),
+	});
+
+	function handleMoreReplies() {
+		const newPage = currentPage + 1;
+		const newReplies = userReplies!.slice(
+			currentPage * REPLIES_PER_PAGE,
+			newPage * REPLIES_PER_PAGE,
+		);
+		setDisplayReplies((prev) => [...prev, ...newReplies]);
+		setCurrentPage(newPage);
 	}
 
 	useEffect(() => {
-		fetchUserReplies();
-	}, []);
+		if (userReplies) {
+			setDisplayReplies(userReplies.slice(0, currentPage * REPLIES_PER_PAGE));
+		}
+	}, [userReplies]);
 
 	return (
 		<ProductSection>
@@ -42,13 +54,38 @@ export default function UserReplies() {
 				url="replies"
 			/>
 			<Heading>내가 쓴 댓글</Heading>
-			<ProductContainer height="633px">
-				<ProductList>
-					{replies.map((reply) => {
-						return <UserRepliesListItem reply={reply} />;
-					})}
-				</ProductList>
-			</ProductContainer>
+			{isLoadingUserReplies ? (
+				<ProductListSkeleton />
+			) : (
+				<ProductContainer height="633px">
+					<ProductList>
+						{userReplies !== undefined && userReplies?.length === 0 ? (
+							<p>댓글이 없습니다.</p>
+						) : (
+							displayReplies?.map((reply) => {
+								return <UserRepliesListItem reply={reply} />;
+							})
+						)}
+					</ProductList>
+					{userReplies !== undefined &&
+					currentPage * REPLIES_PER_PAGE < userReplies?.length ? (
+						<MoreButton
+							onClick={handleMoreReplies}
+							aria-label="댓글을 추가로 더 표시합니다."
+						>
+							더보기
+						</MoreButton>
+					) : (
+						<MoreButton
+							disabled
+							isDisable
+							aria-label="더이상 표시할 댓글이 없습니다."
+						>
+							더보기
+						</MoreButton>
+					)}
+				</ProductContainer>
+			)}
 		</ProductSection>
 	);
 }

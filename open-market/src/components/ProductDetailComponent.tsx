@@ -14,6 +14,7 @@ import {
 	ChangeEvent,
 	SyntheticEvent,
 	useEffect,
+	useLayoutEffect,
 	useRef,
 	useState,
 } from "react";
@@ -23,6 +24,10 @@ interface DetailProps {
 	genre: string | undefined;
 	rating: number;
 	createdAt: string;
+}
+
+interface TitleProps {
+	fontSize: number;
 }
 
 export const ProductDetailArticle = styled.article`
@@ -49,6 +54,7 @@ const ProductMediaContainer = styled.div`
 		width: 270px;
 		height: 270px;
 		object-fit: cover;
+		filter: brightness(60%);
 	}
 
 	button {
@@ -105,13 +111,7 @@ export const ProductDetailInfo = styled.div`
 	gap: 5px;
 	color: ${Common.colors.white};
 	box-shadow: 0px 5px 5px rgb(40, 40, 44, 0.8);
-
-	.title {
-		font-size: ${Common.font.size.xl};
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
+	position: relative;
 
 	.seller {
 		font-size: ${Common.font.size.lg};
@@ -174,6 +174,56 @@ const ProductDetailExtra = styled.div`
 		top: -6px;
 	}
 `;
+
+const DetailTitleWrapper = styled.div`
+	flex-grow: 1;
+	flex-shrink: 1;
+	flex-basis: auto;
+	position: relative;
+	min-height: 1px;
+`;
+const DetailTitle = styled.div<TitleProps>`
+	display: inline-block;
+	color: ${Common.colors.white};
+	font-size: ${(props) => props.fontSize}px;
+	white-space: ${(props) => (props.fontSize <= 25 ? "normal" : "nowrap")};
+	position: absolute;
+	top: 0;
+	left: 0;
+`;
+
+function ProductDetailTitle({ text }: { text: string }) {
+	const [fontSize, setFontSize] = useState(50);
+	const textRef = useRef<HTMLDivElement>(null);
+
+	useLayoutEffect(() => {
+		const adjustFontSize = () => {
+			if (textRef.current) {
+				const currentWidth = textRef.current.clientWidth;
+				const parentWidth = 670;
+				if (currentWidth > parentWidth) {
+					const newFontSize = (50 * parentWidth) / currentWidth;
+					setFontSize(Math.max(newFontSize, 25));
+				} else if (currentWidth <= parentWidth && fontSize < 50) {
+					setFontSize(50);
+				}
+			}
+		};
+		adjustFontSize();
+	}, [text]);
+
+	return (
+		<DetailTitleWrapper>
+			<DetailTitle
+				aria-label="음원 상품 제목"
+				fontSize={fontSize}
+				ref={textRef}
+			>
+				{text}
+			</DetailTitle>
+		</DetailTitleWrapper>
+	);
+}
 
 function ProductDetailComponent({
 	product,
@@ -250,6 +300,7 @@ function ProductDetailComponent({
 				<img
 					src={product?.mainImages[0].path}
 					alt={`${product?.name}의 앨범 아트`}
+					onError={(e) => (e.currentTarget.src = "/alt_cover.png")}
 				/>
 				{isPlaying ? (
 					<button
@@ -279,9 +330,7 @@ function ProductDetailComponent({
 				/>
 			</ProductMediaContainer>
 			<ProductDetailInfo>
-				<span className="title" aria-label="음원 상품 제목">
-					{product?.name}
-				</span>
+				<ProductDetailTitle text={product?.name!} />
 				<span className="seller" aria-label="음원 상품 판매자">
 					{product?.extra?.sellerName}
 				</span>

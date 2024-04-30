@@ -283,7 +283,7 @@ function ProductRegistration() {
 						<div className="ImageWrapper">
 							<input
 								type="file"
-								accept="*.jpg,*.png,*.jpeg,*.webp,*.avif"
+								accept="*.jpg,*.png,*.jpeg,*.webp,*.avif,*.svg"
 								onChange={(e: { target: { files: any } }) => {
 									setImageLoading(true);
 									uploadFile(e.target.files[0], setPostItem, "image")

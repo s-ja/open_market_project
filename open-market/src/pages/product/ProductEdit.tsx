@@ -37,6 +37,7 @@ interface ProductEditForm {
 		category: string;
 		tags: string[];
 		soundFile: ProductFiles;
+		sellerName: string;
 	};
 }
 const ProductEditSection = styled.section`
@@ -192,6 +193,7 @@ function ProductEdit() {
 			category: "",
 			tags: [],
 			soundFile: { path: "", name: "", originalname: "" },
+			sellerName: "",
 		},
 	});
 	const [audioLoading, setAudioLoading] = useState<boolean>(false);
@@ -278,6 +280,7 @@ function ProductEdit() {
 					extra: {
 						category: fetchedProductInfo?.extra?.category || "",
 						tags: fetchedProductInfo?.extra?.tags || [],
+						sellerName: fetchedProductInfo?.extra?.sellerName || "",
 						soundFile: fetchedProductInfo?.extra?.soundFile || {
 							path: "",
 							name: "",

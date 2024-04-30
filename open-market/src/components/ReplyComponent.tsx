@@ -107,6 +107,10 @@ export const ReplyInputForm = styled.form`
 		background-color: ${Common.colors.emphasize};
 		border: none;
 		border-radius: 10px;
+
+		&:disabled {
+			cursor: not-allowed;
+		}
 	}
 `;
 

@@ -1,3 +1,4 @@
+import { AudioSkeleton } from "@/components/SkeletonUI";
 import { ListControlPanel } from "@/components/audioPlayer/ControlPanel";
 import PlayerSlider from "@/components/audioPlayer/PlayerSlider";
 import { currentAudioIdState } from "@/states/audioPlayerState";
@@ -47,6 +48,7 @@ function MusicPlayer({ soundFile, audioId, showable, name }: MusicPlayerProps) {
 	const [currentAudioId, setCurrentAudioId] =
 		useRecoilState(currentAudioIdState);
 
+	const [isLoaded, setIsLoaded] = useState(false);
 	const [percentage, setPercentage] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [duration, setDuration] = useState(0);
@@ -95,12 +97,30 @@ function MusicPlayer({ soundFile, audioId, showable, name }: MusicPlayerProps) {
 	}
 
 	useEffect(() => {
+		if (audioRef.current) {
+			const audio = audioRef.current as HTMLAudioElement;
+
+			function onCanPlay() {
+				setIsLoaded(true);
+			}
+
+			audio.addEventListener("loadeddata", onCanPlay);
+			audio.addEventListener("canplay", onCanPlay);
+
+			return () => {
+				audio.removeEventListener("loadeddata", onCanPlay);
+				audio.removeEventListener("canplay", onCanPlay);
+			};
+		}
+	}, [audioRef.current]);
+
+	useEffect(() => {
 		if (audio) {
-			const handleAudioEnd = () => {
+			function handleAudioEnd() {
 				setIsPlaying(false);
 				setPercentage(0);
 				audio.currentTime = 0;
-			};
+			}
 
 			audio.addEventListener("ended", handleAudioEnd);
 
@@ -134,22 +154,6 @@ function MusicPlayer({ soundFile, audioId, showable, name }: MusicPlayerProps) {
 
 	return (
 		<PlayerContainer showable={showable}>
-			<PlayButton onClick={handlePlayAndPauseMusic}>
-				{isPlaying ? (
-					<span aria-label={`${name} 음원의 재생을 멈춥니다.`}>
-						<PauseIcon fontSize="large" />
-					</span>
-				) : (
-					<span aria-label={`${name} 음원을 재생합니다.`}>
-						<PlayArrowIcon fontSize="large" />
-					</span>
-				)}
-			</PlayButton>
-			<PlayerSlider
-				onChange={onChange}
-				percentage={percentage}
-				showable={showable}
-			/>
 			<audio
 				ref={audioRef}
 				onTimeUpdate={getCurrentDuration}
@@ -157,12 +161,35 @@ function MusicPlayer({ soundFile, audioId, showable, name }: MusicPlayerProps) {
 					setDuration(+soundFile.duration!.toFixed(2));
 				}}
 				src={soundFile?.path}
+				preload="auto"
 			/>
-			<ListControlPanel
-				duration={duration}
-				currentTime={currentTime}
-				showable={showable}
-			/>
+			{isLoaded ? (
+				<>
+					<PlayButton onClick={handlePlayAndPauseMusic}>
+						{isPlaying ? (
+							<span aria-label={`${name} 음원의 재생을 멈춥니다.`}>
+								<PauseIcon fontSize="large" />
+							</span>
+						) : (
+							<span aria-label={`${name} 음원을 재생합니다.`}>
+								<PlayArrowIcon fontSize="large" />
+							</span>
+						)}
+					</PlayButton>
+					<PlayerSlider
+						onChange={onChange}
+						percentage={percentage}
+						showable={showable}
+					/>
+					<ListControlPanel
+						duration={duration}
+						currentTime={currentTime}
+						showable={showable}
+					/>
+				</>
+			) : (
+				<AudioSkeleton />
+			)}
 		</PlayerContainer>
 	);
 }

@@ -31,6 +31,7 @@ const TextareaBox = styled.textarea<{ width: string; height: string }>`
 	background-color: ${Common.colors.white};
 	border-radius: 10px;
 	margin: 5px;
+	padding-top: 6px;
 	&:focus {
 		border: none;
 		outline: none;

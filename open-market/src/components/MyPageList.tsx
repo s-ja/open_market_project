@@ -34,6 +34,20 @@ const List = styled.ul`
 
 const ListItem = styled.li`
 	margin-right: 16px;
+	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+	overflow: hidden;
+	border-radius: 10px;
+	background: rgba(130, 130, 128, 0.25);
+
+	& > a {
+		display: flex;
+		outline: none;
+		text-decoration: none;
+		font-weight: ${Common.font.weight.regular};
+		:visited {
+			color: inherit;
+		}
+	}
 `;
 
 const StyledLink = styled(Link)`

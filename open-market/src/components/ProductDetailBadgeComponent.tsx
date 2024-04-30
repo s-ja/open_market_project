@@ -113,7 +113,11 @@ function ProductDetailExtraLink({
 }: ProductDetailProps) {
 	const [bookmark, setBookmark] = useState(initialBookmark);
 	const [bookmarkCount, setBookmarkCount] = useState(
-		product?.bookmarks ? product.bookmarks.length : 0,
+		product?.bookmarks
+			? typeof product?.bookmarks === "number"
+				? product.bookmarks
+				: product.bookmarks.length
+			: 0,
 	);
 
 	const navigate = useNavigate();
@@ -123,6 +127,7 @@ function ProductDetailExtraLink({
 			navigate("/signin");
 		}
 	}
+
 	function handleScrap() {
 		if (bookmark) {
 			try {
@@ -182,9 +187,11 @@ function ProductDetailExtraLink({
 			}
 		}
 	}
+
 	useEffect(() => {
 		setBookmark(initialBookmark);
 	}, [initialBookmark]);
+
 	return (
 		<ProductExtraLinkContainer>
 			<div>

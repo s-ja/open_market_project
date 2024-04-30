@@ -1,4 +1,10 @@
-import { ProductList, ProductSection } from "@/styles/ProductListStyle";
+import HelmetSetup from "@/components/HelmetSetup";
+import {
+	Heading,
+	ProductContainer,
+	ProductList,
+	ProductSection,
+} from "@/styles/ProductListStyle";
 import { Common } from "@/styles/common";
 import { axiosInstance } from "@/utils";
 import styled from "@emotion/styled";
@@ -25,122 +31,6 @@ type Bookmark = {
 	user_id: number;
 	_id: number;
 };
-
-function UserBookmarks() {
-	const [bookmarkList, setBookmarkList] = useState<Bookmark[]>([]);
-
-	async function deleteScrap(bookmarkId: number) {
-		try {
-			axiosInstance.delete(`/bookmarks/${bookmarkId}`).then(() => {
-				setBookmarkList((currentList) =>
-					currentList.filter((bookmark) => bookmark._id !== bookmarkId),
-				);
-				toast.success("북마크 삭제 완료", {
-					ariaProps: {
-						role: "status",
-						"aria-live": "polite",
-					},
-				});
-			});
-		} catch (error) {
-			console.error(error);
-			toast.error("북마크 삭제 실패", {
-				ariaProps: {
-					role: "status",
-					"aria-live": "polite",
-				},
-			});
-		}
-	}
-
-	useEffect(() => {
-		async function fetchedBookmarksData() {
-			const { data } = await axiosInstance.get("/bookmarks/");
-			setBookmarkList(data.item.reverse());
-		}
-		fetchedBookmarksData();
-	}, []);
-
-	return (
-		<UserBookmarksComponentWrapper>
-			<ProductSection>
-				<ProductContainer>
-					<ProductList>
-						{bookmarkList ? (
-							bookmarkList!.map((i) => (
-								<ListItem key={i.product_id}>
-									<StyledLink
-										to={`/productdetail/${i.product_id}`}
-										aria-label={`${i.product.name}의 상세페이지로 이동`}
-									>
-										<img
-											src={i.product.image.path}
-											alt={`${i.product.name}의 앨범 아트`}
-										/>
-										<span title={i.product.name}>{i.product.name}</span>
-									</StyledLink>
-									<button
-										className="iconWrapper"
-										onClick={() => deleteScrap(i._id)}
-									>
-										북마크 삭제
-										<Delete />
-									</button>
-								</ListItem>
-							))
-						) : (
-							<span>북마크된 상품이 없습니다.</span>
-						)}
-					</ProductList>
-				</ProductContainer>
-			</ProductSection>
-		</UserBookmarksComponentWrapper>
-	);
-}
-
-export default UserBookmarks;
-
-const UserBookmarksComponentWrapper = styled.div`
-	height: calc(100vh - 100px);
-	overflow-y: scroll;
-`;
-
-const ProductContainer = styled.div`
-	width: 1160px;
-	padding: ${Common.space.spacingLg} 0 5px 0;
-	display: flex;
-	flex-flow: column nowrap;
-	align-items: center;
-	justify-content: space-between;
-	background-color: ${Common.colors.gray2};
-	border-radius: 10px;
-	box-shadow: 0px 5px 5px rgb(40, 40, 44, 0.3);
-
-	span.emptyList {
-		padding-top: 40px;
-		font-weight: ${Common.font.weight.regular};
-	}
-
-	.moreButton {
-		width: 100px;
-		height: 40px;
-		position: relative;
-		background-color: transparent;
-		border: none;
-		font-weight: ${Common.font.weight.regular};
-
-		&::after {
-			content: "";
-			position: absolute;
-			top: 50%;
-			transform: translateY(-30%);
-			right: 12px;
-			border-bottom: solid 8px transparent;
-			border-left: solid 8px transparent;
-			border-right: solid 8px transparent;
-		}
-	}
-`;
 
 const ListItem = styled.li`
 	width: 1140px;
@@ -226,11 +116,91 @@ const StyledTitleSpan = styled.span`
 	}
 
 	span {
-		width: 100px;
-		overflow: hidden;
-		text-overflow: ellipsis;
+		width: 800px;
 		white-space: nowrap;
+		text-overflow: ellipsis;
+		overflow: hidden;
 	}
 `;
 
 const StyledLink = StyledTitleSpan.withComponent(Link);
+
+function UserBookmarks() {
+	const [bookmarkList, setBookmarkList] = useState<Bookmark[]>([]);
+
+	async function deleteScrap(bookmarkId: number) {
+		try {
+			axiosInstance.delete(`/bookmarks/${bookmarkId}`).then(() => {
+				setBookmarkList((currentList) =>
+					currentList.filter((bookmark) => bookmark._id !== bookmarkId),
+				);
+				toast.success("북마크 삭제 완료", {
+					ariaProps: {
+						role: "status",
+						"aria-live": "polite",
+					},
+				});
+			});
+		} catch (error) {
+			console.error(error);
+			toast.error("북마크 삭제 실패", {
+				ariaProps: {
+					role: "status",
+					"aria-live": "polite",
+				},
+			});
+		}
+	}
+
+	useEffect(() => {
+		async function fetchedBookmarksData() {
+			const { data } = await axiosInstance.get("/bookmarks/");
+			setBookmarkList(data.item.reverse());
+		}
+		fetchedBookmarksData();
+	}, []);
+
+	return (
+		<ProductSection>
+			<HelmetSetup
+				title="My Bookmarks"
+				description="북마크한 목록"
+				url="userbookmarks"
+			/>
+			<Heading>북마크한 목록</Heading>
+			<ProductContainer height="633px">
+				<ProductList>
+					{bookmarkList ? (
+						bookmarkList!.map((i) => (
+							<ListItem key={i.product_id}>
+								<StyledLink
+									to={`/productdetail/${i.product_id}`}
+									aria-label={`${i.product.name}의 상세페이지로 이동`}
+								>
+									<img
+										src={i.product.image.path}
+										alt={`${i.product.name}의 앨범 아트`}
+									/>
+									<span title={i.product.name}>{i.product.name}</span>
+								</StyledLink>
+								<button
+									className="iconWrapper"
+									onClick={() => deleteScrap(i._id)}
+								>
+									북마크 삭제
+									<Delete
+										sx={{ color: `${Common.colors.black}`, fontSize: "20px" }}
+									/>
+								</button>
+							</ListItem>
+						))
+					) : (
+						<span>북마크된 상품이 없습니다.</span>
+					)}
+				</ProductList>
+			</ProductContainer>
+		</ProductSection>
+	);
+}
+
+export default UserBookmarks;

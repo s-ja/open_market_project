@@ -1,35 +1,27 @@
+import { currentUserState } from "@/states/authState";
 import {
 	categoryValueState,
-	fetchProductListState,
 	productListState,
 	searchKeywordState,
 } from "@/states/productListState";
 import { Common } from "@/styles/common";
+import { axiosInstance } from "@/utils";
 import styled from "@emotion/styled";
-import {
-	AccountCircle,
-	ExitToApp,
-	FileUpload,
-	Search,
-} from "@mui/icons-material";
+import { AccountCircle, FileUpload, Logout, Search } from "@mui/icons-material";
 import {
 	AppBar,
 	Button,
 	CircularProgress,
 	IconButton,
 	InputAdornment,
-	Menu,
-	MenuItem,
 	TextField,
 	Toolbar,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { KeyboardEvent, useEffect, useState } from "react";
-import { currentUserState } from "@/states/authState";
-import { axiosInstance } from "@/utils";
+import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import logoImage from "/logo/logo2.svg";
 
 const HeaderContainer = styled(AppBar)`
@@ -102,10 +94,7 @@ const UploadButton = styled(Button)`
 	background-color: transparent;
 	border-radius: 10px;
 	border: 1px solid ${Common.colors.emphasize};
-
-	&:hover {
-		background-color: ${Common.colors.black};
-	}
+	margin-right: ${Common.space.spacingLg};
 
 	.MuiButton-startIcon {
 		margin-right: ${Common.space.spacingMd};
@@ -114,9 +103,20 @@ const UploadButton = styled(Button)`
 `;
 
 const UserButton = styled(Button)`
+	all: unset;
+	cursor: pointer;
 	color: ${Common.colors.white};
+	margin: 0 5px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
 	&:hover {
 		color: ${Common.colors.emphasize};
+	}
+	.notLoggedIn {
+		border-radius: 10px;
+		border: 1px solid ${Common.colors.emphasize};
+		padding: 10px;
 	}
 `;
 
@@ -131,23 +131,22 @@ function Header() {
 	const setSearchKeyword = useSetRecoilState<string>(searchKeywordState);
 	const setCategoryValue = useSetRecoilState<string>(categoryValueState);
 
-	const fetchedProductList = useRecoilValue(fetchProductListState(0));
-
-	const { refetch } = useQuery({
-		queryKey: ["productList", productList],
+	const { data: productListData, refetch } = useQuery({
+		queryKey: ["productList"],
 		queryFn: fetchProductList,
 		refetchOnWindowFocus: false,
 	});
 
-	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
 	const [searchInput, setSearchInput] = useState("");
+
+	const isMounted = useRef(false);
 
 	async function fetchProductList() {
 		try {
-			return await axiosInstance.get("/products");
+			const response = await axiosInstance.get("/products");
+			return response.data;
 		} catch (error) {
-			console.error(error);
+			throw new Error("Fetching failed");
 		}
 	}
 
@@ -174,17 +173,6 @@ function Header() {
 		setSearchInput("");
 	}
 
-	function handleProfileMenuOpen(event: React.MouseEvent<HTMLElement>) {
-		const currentTarget = event.currentTarget;
-		if (currentTarget && document.body.contains(currentTarget)) {
-			setAnchorEl(currentTarget);
-		}
-	}
-
-	function handleMenuClose() {
-		setAnchorEl(null);
-	}
-
 	function handleLogout() {
 		setCurrentUser(null);
 		localStorage.removeItem("accessToken");
@@ -201,11 +189,22 @@ function Header() {
 	}
 
 	useEffect(() => {
-		setProductList(fetchedProductList!);
+		isMounted.current = true;
+		return () => {
+			isMounted.current = false;
+		};
 	}, []);
 
 	useEffect(() => {
-		refetch();
+		if (productListData && isMounted.current) {
+			setProductList(productListData);
+		}
+	}, [productListData, setProductList, isMounted]);
+
+	useEffect(() => {
+		if (isMounted.current) {
+			refetch();
+		}
 	}, [productList]);
 
 	return (
@@ -265,51 +264,36 @@ function Header() {
 							업로드
 						</UploadButton>
 
-						<span aria-label="사용자 메뉴">
-							<UserButton color="inherit" onClick={handleProfileMenuOpen}>
-								<AccountCircle />
-							</UserButton>
-						</span>
-						<Menu
-							anchorEl={anchorEl}
-							open={Boolean(anchorEl)}
-							onClose={handleMenuClose}
+						<UserButton
+							role="button"
+							data-testid="mypage-button"
+							onClick={() => {
+								navigate("/mypage");
+							}}
+							aria-label="마이페이지"
 						>
-							<MenuItem
-								component={Link}
-								to="/mypage"
-								onClick={() => {
-									handleMenuClose();
-									localStorage.removeItem("userProductsInfo");
-									localStorage.removeItem("searchOrderKeyword");
-								}}
-							>
-								마이페이지
-							</MenuItem>
-							<MenuItem onClick={handleLogout}>
-								<ExitToApp />
-								로그아웃
-							</MenuItem>
-						</Menu>
+							<AccountCircle />
+						</UserButton>
+						<UserButton
+							role="button"
+							data-testid="logout-button"
+							onClick={handleLogout}
+							aria-label="로그아웃"
+						>
+							<Logout />
+						</UserButton>
 					</ButtonWrapper>
 				)}
 				{!currentUser && (
 					<ButtonWrapper>
 						<UserButton
-							onClick={handleProfileMenuOpen}
-							aria-label="사용자 메뉴"
+							onClick={() => {
+								navigate("/signin");
+							}}
+							aria-label="로그인"
 						>
-							<AccountCircle />
+							<span className="notLoggedIn">로그인 / 회원가입</span>
 						</UserButton>
-						<Menu
-							anchorEl={anchorEl}
-							open={Boolean(anchorEl)}
-							onClose={handleMenuClose}
-						>
-							<MenuItem component={Link} to="/signin" onClick={handleMenuClose}>
-								회원가입 / 로그인
-							</MenuItem>
-						</Menu>
 					</ButtonWrapper>
 				)}
 			</HeaderWrapper>

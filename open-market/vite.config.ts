@@ -1,11 +1,15 @@
 import * as path from "path";
 
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
-import svgrPlugin from "vite-plugin-svgr";
 import viteImagemin from "@vheemstra/vite-plugin-imagemin";
+import react from "@vitejs/plugin-react";
 import imageminMozjpeg from "imagemin-mozjpeg";
 import imageminWebp from "imagemin-webp";
+import { InlineConfig, UserConfig, defineConfig } from "vite";
+import svgrPlugin from "vite-plugin-svgr";
+
+interface VitestConfigExport extends UserConfig {
+	test: InlineConfig;
+}
 
 export default defineConfig({
 	plugins: [
@@ -30,4 +34,9 @@ export default defineConfig({
 			"@": path.resolve(__dirname, "./src"),
 		},
 	},
-});
+	test: {
+		globals: true,
+		environment: "jsdom",
+		setupFiles: "./src/tests/setup.ts",
+	},
+} as VitestConfigExport);

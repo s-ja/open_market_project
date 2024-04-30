@@ -137,6 +137,7 @@ export const Common = {
     }
     body {
       line-height: 1;
+      overscroll-behavior: none;
     }
     ol,
     ul {
@@ -185,6 +186,9 @@ export const Common = {
         "Segoe UI Emoji",
         "Segoe UI Symbol",
         sans-serif;
+    }
+    main{
+      min-height: calc(100vh - 100px);
     }
   `,
 };

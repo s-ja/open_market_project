@@ -114,7 +114,7 @@ function SignIn() {
 				password,
 			});
 
-			if (response.data.ok && response.data.item.token) {
+			if (response.data.ok === 1 && response.data.item.token) {
 				const userInfo = response.data.item;
 
 				localStorage.setItem("accessToken", userInfo.token.accessToken);
@@ -134,7 +134,6 @@ function SignIn() {
 						? userInfo.extra?.profileImage
 						: null,
 				});
-
 				navigate("/");
 			}
 		} catch (error: any) {
@@ -153,8 +152,11 @@ function SignIn() {
 					toast.error(errorMessage);
 				}
 			} else {
-				console.error("예상치 못한 오류가 발생했습니다.:", error);
-				toast.error("알 수 없는 오류가 발생했습니다.");
+				const errorMessage =
+					error.response && error.response.data
+						? error.response.data.message
+						: "알 수 없는 오류가 발생했습니다.";
+				toast.error(errorMessage);
 			}
 		}
 	}
@@ -164,7 +166,10 @@ function SignIn() {
 			<HelmetSetup title="Sign In" description="로그인" url="signin" />
 			<Logo>
 				<Link to="/">
-					<img src={logoImage} alt="모두의 오디오! 모디의 로고 이미지 입니다." />
+					<img
+						src={logoImage}
+						alt="모두의 오디오! 모디의 로고 이미지 입니다."
+					/>
 				</Link>
 			</Logo>
 			<Title>로그인</Title>
