@@ -1,19 +1,13 @@
 import { currentUserState } from "@/states/authState";
 import {
 	categoryValueState,
-	fetchProductListState,
 	productListState,
 	searchKeywordState,
 } from "@/states/productListState";
 import { Common } from "@/styles/common";
 import { axiosInstance } from "@/utils";
 import styled from "@emotion/styled";
-import {
-	AccountCircle,
-	FileUpload,
-	Search,
-	Logout,
-} from "@mui/icons-material";
+import { AccountCircle, FileUpload, Logout, Search } from "@mui/icons-material";
 import {
 	AppBar,
 	Button,
@@ -24,10 +18,10 @@ import {
 	Toolbar,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { KeyboardEvent, useEffect, useState } from "react";
+import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import logoImage from "/logo/logo2.svg";
 
 const HeaderContainer = styled(AppBar)`
@@ -137,21 +131,22 @@ function Header() {
 	const setSearchKeyword = useSetRecoilState<string>(searchKeywordState);
 	const setCategoryValue = useSetRecoilState<string>(categoryValueState);
 
-	const fetchedProductList = useRecoilValue(fetchProductListState(0));
-
-	const { refetch } = useQuery({
-		queryKey: ["productList", productList],
+	const { data: productListData, refetch } = useQuery({
+		queryKey: ["productList"],
 		queryFn: fetchProductList,
 		refetchOnWindowFocus: false,
 	});
 
 	const [searchInput, setSearchInput] = useState("");
 
+	const isMounted = useRef(false);
+
 	async function fetchProductList() {
 		try {
-			return await axiosInstance.get("/products");
+			const response = await axiosInstance.get("/products");
+			return response.data;
 		} catch (error) {
-			console.error(error);
+			throw new Error("Fetching failed");
 		}
 	}
 
@@ -194,11 +189,22 @@ function Header() {
 	}
 
 	useEffect(() => {
-		setProductList(fetchedProductList!);
+		isMounted.current = true;
+		return () => {
+			isMounted.current = false;
+		};
 	}, []);
 
 	useEffect(() => {
-		refetch();
+		if (productListData && isMounted.current) {
+			setProductList(productListData);
+		}
+	}, [productListData, setProductList, isMounted]);
+
+	useEffect(() => {
+		if (isMounted.current) {
+			refetch();
+		}
 	}, [productList]);
 
 	return (
@@ -259,6 +265,8 @@ function Header() {
 						</UploadButton>
 
 						<UserButton
+							role="button"
+							data-testid="mypage-button"
 							onClick={() => {
 								navigate("/mypage");
 							}}
@@ -266,7 +274,12 @@ function Header() {
 						>
 							<AccountCircle />
 						</UserButton>
-						<UserButton onClick={handleLogout} aria-label="로그아웃">
+						<UserButton
+							role="button"
+							data-testid="logout-button"
+							onClick={handleLogout}
+							aria-label="로그아웃"
+						>
 							<Logout />
 						</UserButton>
 					</ButtonWrapper>
