@@ -20,7 +20,7 @@ const Title = styled.h2`
 	${Common.a11yHidden};
 `;
 
-const Backgroud = styled.section`
+const Background = styled.section`
 	width: 100vw;
 	height: auto;
 	min-height: 100vh;
@@ -166,7 +166,7 @@ const Submit = styled.button`
 	padding: 15px 32px;
 `;
 
-const Cancle = styled(Link)`
+const Cancel = styled(Link)`
 	:visited {
 		color: inherit;
 	}
@@ -352,7 +352,7 @@ function UserEdit() {
 	}
 
 	return (
-		<Backgroud>
+		<Background>
 			<HelmetSetup
 				title="Edit User"
 				description="회원 정보 수정"
@@ -500,9 +500,9 @@ function UserEdit() {
 					</ul>
 				</Fieldset>
 				<Submit type="submit">수정하기</Submit>
-				<Cancle to="/mypage">수정취소</Cancle>
+				<Cancel to="/mypage">수정취소</Cancel>
 			</Form>
-		</Backgroud>
+		</Background>
 	);
 }
 
