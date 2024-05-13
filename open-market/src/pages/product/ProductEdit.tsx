@@ -5,10 +5,12 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import SelectGenre from "@/components/SelectGenre";
 import { ProductEditSkeleton } from "@/components/SkeletonUI";
 import Textarea from "@/components/Textarea";
+import { usePatchProductMutation } from "@/hooks/product/mutations/edit";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { useUserProductDetailSuspenseQuery } from "@/hooks/user/queries/detail";
 import { codeState } from "@/states/categoryState";
 import { Common } from "@/styles/common";
-import { axiosInstance, debounce } from "@/utils";
+import { debounce } from "@/utils";
 import { uploadFile } from "@/utils/uploadFile";
 import styled from "@emotion/styled";
 import CircleIcon from "@mui/icons-material/Circle";
@@ -17,7 +19,7 @@ import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import { Radio, RadioProps } from "@mui/material";
 import { styled as muiStyled } from "@mui/system";
 import React, { useEffect, useState } from "react";
-import toast, { Renderable, Toast, ValueFunction } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 
@@ -25,7 +27,7 @@ interface FlexLayoutProps {
 	right?: boolean;
 }
 
-interface ProductEditForm {
+export interface ProductEditForm {
 	show: boolean;
 	name: string;
 	mainImages: ProductFiles[];
@@ -178,8 +180,6 @@ function ProductEdit() {
 
 	const category = useRecoilValue(codeState);
 
-	const [isLoading, setIsLoading] = useState<boolean>(true);
-
 	const [userProductInfo, setUserProductInfo] = useState<Product>();
 	const [postItem, setPostItem] = useState<ProductEditForm>({
 		show: false,
@@ -199,12 +199,19 @@ function ProductEdit() {
 	const [audioLoading, setAudioLoading] = useState<boolean>(false);
 	const [imageLoading, setImageLoading] = useState<boolean>(false);
 
+	const { mutate: patchProduct } = usePatchProductMutation();
+	const {
+		data: userProductDetail,
+		error: userProductDetailError,
+		isLoading: userProductDetailLoading,
+	} = useUserProductDetailSuspenseQuery(productId);
+
 	useRequireAuth();
 
 	function handleEditProduct(e: { preventDefault: () => void }) {
 		e.preventDefault();
 
-		if (postItem.mainImages.length === 0) {
+		if (postItem.mainImages[0].name === "") {
 			toast.error("앨범아트를 업로드해야 합니다.", {
 				ariaProps: {
 					role: "status",
@@ -223,28 +230,7 @@ function ProductEdit() {
 			});
 			return;
 		}
-
-		try {
-			axiosInstance
-				.patch(`/seller/products/${productId}`, postItem)
-				.then(() => {
-					toast.success("상품 수정 완료!", {
-						ariaProps: {
-							role: "status",
-							"aria-live": "polite",
-						},
-					});
-					navigate(-1);
-				})
-				.catch((error) => {
-					error.response.data.errors.forEach(
-						(err: { msg: Renderable | ValueFunction<Renderable, Toast> }) =>
-							toast.error(err.msg),
-					);
-				});
-		} catch (error) {
-			console.error(error);
-		}
+		patchProduct({ productId, newProduct: postItem });
 	}
 
 	function handleEditCancel() {
@@ -255,51 +241,33 @@ function ProductEdit() {
 	}
 
 	useEffect(() => {
-		const accessToken = localStorage.getItem("accessToken");
-
-		const fetchUserProductInfo = async () => {
-			try {
-				const response = await axiosInstance.get<ProductResponse>(
-					`/seller/products/${productId}`,
-					{
-						headers: {
-							Authorization: `Bearer ${accessToken}`,
-						},
+		if (userProductDetail) {
+			setPostItem({
+				show: userProductDetail?.show || false,
+				name: userProductDetail?.name || "",
+				mainImages: userProductDetail?.mainImages || [],
+				content: userProductDetail?.content || "",
+				price: userProductDetail?.price || 0,
+				buyQuantity: userProductDetail?.buyQuantity || 0,
+				shippingFees: 0,
+				extra: {
+					category: userProductDetail?.extra?.category || "",
+					tags: userProductDetail?.extra?.tags || [],
+					sellerName: userProductDetail?.extra?.sellerName || "",
+					soundFile: userProductDetail?.extra?.soundFile || {
+						path: "",
+						name: "",
+						originalname: "",
 					},
-				);
-				const fetchedProductInfo = response.data.item;
-				setUserProductInfo(fetchedProductInfo);
-				setPostItem({
-					show: fetchedProductInfo?.show || false,
-					name: fetchedProductInfo?.name || "",
-					mainImages: fetchedProductInfo?.mainImages || [],
-					content: fetchedProductInfo?.content || "",
-					price: fetchedProductInfo?.price || 0,
-					buyQuantity: fetchedProductInfo?.buyQuantity || 0,
-					shippingFees: 0,
-					extra: {
-						category: fetchedProductInfo?.extra?.category || "",
-						tags: fetchedProductInfo?.extra?.tags || [],
-						sellerName: fetchedProductInfo?.extra?.sellerName || "",
-						soundFile: fetchedProductInfo?.extra?.soundFile || {
-							path: "",
-							name: "",
-							originalname: "",
-						},
-					},
-				});
-			} catch (error) {
-				console.error("상품 정보 조회 실패:", error);
-			}
-		};
-		fetchUserProductInfo();
-	}, [productId]);
-
-	useEffect(() => {
-		if (userProductInfo) {
-			setIsLoading(false);
+				},
+			});
+			setUserProductInfo(userProductDetail);
 		}
-	}, [userProductInfo]);
+	}, [userProductDetail]);
+
+	if (userProductDetailError) {
+		navigate("/err404", { replace: true });
+	}
 
 	return (
 		<ProductEditSection>
@@ -309,7 +277,7 @@ function ProductEdit() {
 				url={`productedit/${productId}`}
 			/>
 			<h2 className="a11yHidden">상품 수정</h2>
-			{isLoading ? (
+			{userProductDetailLoading ? (
 				<ProductEditSkeleton />
 			) : (
 				<form encType="multipart/form-data" className="PostFormWrapper">

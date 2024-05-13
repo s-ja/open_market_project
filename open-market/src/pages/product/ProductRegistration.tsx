@@ -1,14 +1,16 @@
+import { ProductRegisterForm } from "@/apis/product/product";
 import FormInput from "@/components/FormInput";
 import FunctionalButton from "@/components/FunctionalButton";
 import HelmetSetup from "@/components/HelmetSetup";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import SelectGenre from "@/components/SelectGenre";
 import Textarea from "@/components/Textarea";
+import { usePostProductMutation } from "@/hooks/product/mutations/registration";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { currentUserState } from "@/states/authState";
 import { codeState } from "@/states/categoryState";
 import { Common } from "@/styles/common";
-import { axiosInstance, debounce } from "@/utils";
+import { debounce } from "@/utils";
 import { uploadFile } from "@/utils/uploadFile";
 import styled from "@emotion/styled";
 import CircleIcon from "@mui/icons-material/Circle";
@@ -17,32 +19,12 @@ import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import { Radio, RadioProps } from "@mui/material";
 import { styled as muiStyled } from "@mui/system";
 import { useState } from "react";
-import toast, { Renderable, Toast, ValueFunction } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 
 interface FlexLayoutProps {
 	right?: boolean;
-}
-
-interface ProductRegistForm {
-	show: boolean;
-	active: boolean;
-	name: string;
-	mainImages: ProductFiles[];
-	content: string;
-	price: number;
-	shippingFees: number;
-	quantity: number;
-	buyQuantity: number;
-	extra: {
-		sellerName: string;
-		isNew: boolean;
-		isBest: boolean;
-		category: string;
-		tags: string[];
-		soundFile: ProductFiles;
-	};
 }
 
 const ProductRegistSection = styled.section`
@@ -185,7 +167,7 @@ function ProductRegistration() {
 	const category = useRecoilValue(codeState);
 	const currentUser = useRecoilValue(currentUserState);
 
-	const [postItem, setPostItem] = useState<ProductRegistForm>({
+	const [postItem, setPostItem] = useState<ProductRegisterForm>({
 		show: true,
 		active: true,
 		name: "",
@@ -204,16 +186,16 @@ function ProductRegistration() {
 			soundFile: { path: "", name: "", originalname: "" },
 		},
 	});
-
 	const [audioLoading, setAudioLoading] = useState<boolean>(false);
 	const [imageLoading, setImageLoading] = useState<boolean>(false);
+	const { mutate: registerProduct } = usePostProductMutation();
 
 	useRequireAuth();
 
 	function handlePostProductRegist(e: { preventDefault: () => void }) {
 		e.preventDefault();
 
-		if (postItem.mainImages.length === 0) {
+		if (postItem.mainImages[0].name === "") {
 			toast.error("앨범아트를 업로드해야 합니다.", {
 				ariaProps: {
 					role: "status",
@@ -233,33 +215,7 @@ function ProductRegistration() {
 			return;
 		}
 
-		try {
-			axiosInstance
-				.post(`/seller/products`, postItem)
-				.then((response) => {
-					toast.success("상품 등록 성공!", {
-						ariaProps: {
-							role: "status",
-							"aria-live": "polite",
-						},
-					});
-
-					if (response.status === 200) {
-						const productId = response.data.item._id;
-						navigate(`/productmanage/${productId}`);
-					}
-
-					localStorage.removeItem("userProductsInfo");
-				})
-				.catch((error) => {
-					error.response.data.errors.forEach(
-						(err: { msg: Renderable | ValueFunction<Renderable, Toast> }) =>
-							toast.error(err.msg),
-					);
-				});
-		} catch (error) {
-			console.error(error);
-		}
+		registerProduct(postItem);
 	}
 
 	function handleRegistCancel() {
