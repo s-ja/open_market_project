@@ -1,6 +1,7 @@
 import HelmetSetup from "@/components/HelmetSetup";
 import { UserRepliesListItem } from "@/components/ProductListComponent";
 import { ProductListSkeleton } from "@/components/SkeletonUI";
+import { useUserRepliesQuery } from "@/hooks/user/queries/replies";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
 	Heading,
@@ -9,26 +10,17 @@ import {
 	ProductList,
 	ProductSection,
 } from "@/styles/ProductListStyle";
-import { axiosInstance } from "@/utils";
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 export default function UserReplies() {
 	useRequireAuth();
 
+	const { data: userReplies, isLoading: isLoadingUserReplies } =
+		useUserRepliesQuery();
+
 	const [displayReplies, setDisplayReplies] = useState<Reply[]>([]);
 	const [currentPage, setCurrentPage] = useState(2);
 	const REPLIES_PER_PAGE = 4;
-
-	async function fetchUserReplies() {
-		const response = await axiosInstance.get(`/replies`);
-		return response.data.item;
-	}
-
-	const { data: userReplies, isLoading: isLoadingUserReplies } = useQuery({
-		queryKey: ["replies"],
-		queryFn: () => fetchUserReplies(),
-	});
 
 	function handleMoreReplies() {
 		const newPage = currentPage + 1;

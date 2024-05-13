@@ -1,5 +1,6 @@
 import HelmetSetup from "@/components/HelmetSetup";
 import MyPageList from "@/components/MyPageList";
+import { useUserRepliesQuery } from "@/hooks/user/queries/replies";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { currentUserState } from "@/states/authState";
 import { Common } from "@/styles/common";
@@ -186,11 +187,6 @@ async function fetchBookmarks() {
 	return response.data.item;
 }
 
-async function fetchUserReplies() {
-	const response = await axiosInstance.get(`/replies`);
-	return response.data.item;
-}
-
 const formatPhoneNumber = (phoneNumber: number) => {
 	// Ensure the input is a string
 	const cleaned = ("" + phoneNumber).replace(/\D/g, "");
@@ -227,10 +223,9 @@ function MyPage() {
 		queryKey: ["bookmarks", currentUser?._id.toString()],
 		queryFn: () => fetchBookmarks(),
 	});
-	const { data: userReplies, isLoading: isLoadingUserReplies } = useQuery({
-		queryKey: ["replies", currentUser?._id.toString()],
-		queryFn: () => fetchUserReplies(),
-	});
+
+	const { data: userReplies, isLoading: isLoadingUserReplies } =
+		useUserRepliesQuery();
 
 	const historyList = JSON.parse(
 		sessionStorage.getItem("historyList") as string,

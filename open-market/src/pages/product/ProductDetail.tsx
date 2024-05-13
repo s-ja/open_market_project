@@ -8,14 +8,19 @@ import ReplyListItem, {
 	ReplyTextarea,
 	ReplyUserProfileImage,
 } from "@/components/ReplyComponent";
-import { ProductDetailSkeleton } from "@/components/SkeletonUI";
+import {
+	ProductDetailSkeleton,
+	ProductRepliesSkeleton,
+} from "@/components/SkeletonUI";
+import { useBookMarksSuspenseQuery } from "@/hooks/product/queries/bookmark";
 import { useProductDetailSuspenseQuery } from "@/hooks/product/queries/detail";
 import { useProductOrderSuspenseQuery } from "@/hooks/product/queries/order";
-import { useBookMarksSuspenseQuery } from "@/hooks/user/queries/bookMark";
+import { useProductRepliesQuery } from "@/hooks/product/queries/reply";
+import { usePostReplyMutation } from "@/hooks/reply/mutations/usePostReplyMutation";
 import { currentUserState } from "@/states/authState";
 import { codeState } from "@/states/categoryState";
 import { Heading, MoreButton } from "@/styles/ProductListStyle";
-import { axiosInstance, debounce, formatDate } from "@/utils";
+import { debounce, formatDate } from "@/utils";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ModeCommentIcon from "@mui/icons-material/ModeComment";
 import StarIcon from "@mui/icons-material/Star";
@@ -30,6 +35,10 @@ function ProductDetail() {
 	const navigate = useNavigate();
 
 	const { productId } = useParams();
+
+	const { data: allReplies, isLoading: isLoadingProductReplies } =
+		useProductRepliesQuery({ productId });
+
 	const currentUser = useRecoilValue(currentUserState);
 	const category = useRecoilValue(codeState);
 
@@ -39,7 +48,6 @@ function ProductDetail() {
 	const [genre, setGenre] = useState<string>();
 	const [createdAt, setCreatedAt] = useState<string>();
 
-	const [allReplies, setAllReplies] = useState<Reply[]>([]);
 	const [displayReplies, setDisplayReplies] = useState<Reply[]>([]);
 	const [currentPage, setCurrentPage] = useState(1);
 	const REPLIES_PER_PAGE = 4;
@@ -48,13 +56,10 @@ function ProductDetail() {
 	const [ratingValue, setRatingValue] = useState<number>(3);
 	const [replyContent, setReplyContent] = useState<string>();
 	const [__, setHover] = useState(-1);
-	const [isReplyLoading, setIsReplyLoading] = useState<boolean>(false);
-
 	const {
 		data: productDetailData,
 		error: productDetailError,
 		isLoading: productDetailLoading,
-		refetch: productDetailRefetch,
 	} = useProductDetailSuspenseQuery({
 		productId,
 	});
@@ -70,6 +75,13 @@ function ProductDetail() {
 	const { data: productOrderData, error: productOrderError } =
 		useProductOrderSuspenseQuery({ productId, currentUser, productDetailData });
 
+	const {
+		mutate: submitReply,
+		isSuccess,
+		isError: replyError,
+		status: postReplyStatus,
+	} = usePostReplyMutation();
+
 	async function handleReplySubmit(e: { preventDefault: () => void }) {
 		e.preventDefault();
 
@@ -81,40 +93,21 @@ function ProductDetail() {
 				},
 			});
 
-		setIsReplyLoading(true);
+		submitReply({
+			order_id: productOrderData!._id,
+			product_id: Number(productId),
+			rating: ratingValue,
+			content: replyContent,
+			extra: { profileImage: currentUser?.profileImage },
+		});
 
-		try {
-			const response = await axiosInstance.post<ReplyResponse>(`/replies`, {
-				order_id: productOrderData!._id,
-				product_id: Number(productId),
-				rating: ratingValue,
-				content: replyContent,
-				extra: { profileImage: currentUser?.profileImage },
-			});
-
-			setTimeout(() => {
-				if (response.data.ok) {
-					toast.success("댓글을 작성했습니다.", {
-						ariaProps: {
-							role: "status",
-							"aria-live": "polite",
-						},
-					});
-					replyRef.current!.value = "";
-					setReplyContent("");
-					setRatingValue(3);
-					productDetailRefetch(); // tanstack-query 리패치 함수
-					setIsReplyLoading(false);
-				}
-			}, 500);
-		} catch (error) {
-			setIsReplyLoading(false);
-			console.error(error);
+		if (replyError) {
+			console.error(replyError);
 		}
 	}
 
-	function getRating(productDetailData: Product) {
-		return +_.meanBy(productDetailData.replies, "rating").toFixed(2) || 0;
+	function getRating(reply: Reply[]) {
+		return +_.meanBy(reply, "rating").toFixed(2) || 0;
 	}
 
 	function handleMoreReplies() {
@@ -138,11 +131,8 @@ function ProductDetail() {
 			sessionStorage.getItem("historyList") || "[]",
 		);
 		if (productDetailData) {
-			setRating(getRating(productDetailData));
 			setCreatedAt(formatDate(productDetailData.createdAt));
-			if (productDetailData.replies) {
-				setAllReplies(productDetailData.replies);
-			}
+
 			if (sessionHistory.length > 5) {
 				sessionHistory.pop();
 			}
@@ -155,7 +145,16 @@ function ProductDetail() {
 	}, [productDetailData]);
 
 	useEffect(() => {
+		if (isSuccess) {
+			replyRef.current!.value = "";
+			setReplyContent("");
+			setRatingValue(3);
+		}
+	}, [isSuccess]);
+
+	useEffect(() => {
 		if (allReplies) {
+			setRating(getRating(allReplies));
 			setDisplayReplies(allReplies.slice(0, currentPage * REPLIES_PER_PAGE));
 		}
 	}, [allReplies]);
@@ -203,116 +202,124 @@ function ProductDetail() {
 						currentUser={currentUser}
 						bookmark={bookMarksData}
 					/>
-					<ReplyContainer>
-						<h3>
-							<ModeCommentIcon />
-							댓글
-						</h3>
-						<div>
-							{!currentUser ? (
-								<p>로그인 후 댓글을 작성할 수 있습니다.</p>
-							) : currentUser &&
-							  currentUser?._id === productDetailData?.seller_id ? (
-								<p>내 상품에는 댓글을 작성할 수 없습니다.</p>
-							) : (currentUser && !productOrderData) ||
-							  productOrderData === undefined ? (
-								<p>음원 구매 후 댓글을 작성할 수 있습니다.</p>
-							) : (
-								<ReplyInputForm action="submit">
-									<span>
-										{currentUser?.profileImage ? (
-											<ReplyUserProfileImage
-												src={currentUser?.profileImage}
-												alt={`${currentUser?.name}님의 프로필 이미지`}
-											/>
-										) : (
-											<span
-												aria-label={`${currentUser?.name}님의 프로필 이미지`}
-											>
-												<AccountCircleIcon />
-											</span>
-										)}
-									</span>
-									<ReplyBlock user>{currentUser?.name}</ReplyBlock>
-									<div className="inputRating">
-										<Rating
-											name="rating"
-											value={ratingValue}
-											precision={0.5}
-											max={5}
-											onChange={(_, newValue) => {
-												newValue === null
-													? setRatingValue(1)
-													: setRatingValue(newValue);
-											}}
-											onChangeActive={(_, newHover) => {
-												setHover(newHover);
-											}}
-											emptyIcon={
-												<StarIcon
-													style={{ opacity: 0.55 }}
-													fontSize="inherit"
+					{isLoadingProductReplies ? (
+						<ProductRepliesSkeleton />
+					) : (
+						<ReplyContainer>
+							<h3>
+								<ModeCommentIcon />
+								댓글
+							</h3>
+							<div>
+								{!currentUser ? (
+									<p>로그인 후 댓글을 작성할 수 있습니다.</p>
+								) : currentUser &&
+								  currentUser?._id === productDetailData?.seller_id ? (
+									<p>내 상품에는 댓글을 작성할 수 없습니다.</p>
+								) : (currentUser && !productOrderData) ||
+								  productOrderData === undefined ? (
+									<p>음원 구매 후 댓글을 작성할 수 있습니다.</p>
+								) : (
+									<ReplyInputForm action="submit">
+										<span>
+											{currentUser?.profileImage ? (
+												<ReplyUserProfileImage
+													src={currentUser?.profileImage}
+													alt={`${currentUser?.name}님의 프로필 이미지`}
 												/>
-											}
-											aria-label={`별점 선택: ${ratingValue}점`}
-										/>
-									</div>
-									<label htmlFor="content" className="a11yHidden">
-										댓글 내용
-									</label>
-									<div className="replyTextAreaContainer">
-										<ReplyTextarea
-											id="content"
-											name="content"
-											ref={replyRef}
-											onChange={debounce(
-												(e: {
-													target: { value: SetStateAction<string | undefined> };
-												}) => setReplyContent(e.target.value),
+											) : (
+												<span
+													aria-label={`${currentUser?.name}님의 프로필 이미지`}
+												>
+													<AccountCircleIcon />
+												</span>
 											)}
-											required
-										/>
-										<button
-											type="submit"
-											onClick={handleReplySubmit}
-											aria-label="작성한 댓글 등록"
-											disabled={isReplyLoading}
-										>
-											{isReplyLoading ? "업로드 중.." : "작성하기"}
-										</button>
-									</div>
-								</ReplyInputForm>
-							)}
-						</div>
-						<ul>
-							{allReplies !== undefined && allReplies?.length === 0 ? (
-								<p>댓글이 없습니다.</p>
+										</span>
+										<ReplyBlock user>{currentUser?.name}</ReplyBlock>
+										<div className="inputRating">
+											<Rating
+												name="rating"
+												value={ratingValue}
+												precision={0.5}
+												max={5}
+												onChange={(_, newValue) => {
+													newValue === null
+														? setRatingValue(1)
+														: setRatingValue(newValue);
+												}}
+												onChangeActive={(_, newHover) => {
+													setHover(newHover);
+												}}
+												emptyIcon={
+													<StarIcon
+														style={{ opacity: 0.55 }}
+														fontSize="inherit"
+													/>
+												}
+												aria-label={`별점 선택: ${ratingValue}점`}
+											/>
+										</div>
+										<label htmlFor="content" className="a11yHidden">
+											댓글 내용
+										</label>
+										<div className="replyTextAreaContainer">
+											<ReplyTextarea
+												id="content"
+												name="content"
+												ref={replyRef}
+												onChange={debounce(
+													(e: {
+														target: {
+															value: SetStateAction<string | undefined>;
+														};
+													}) => setReplyContent(e.target.value),
+												)}
+												required
+											/>
+											<button
+												type="submit"
+												onClick={handleReplySubmit}
+												aria-label="작성한 댓글 등록"
+												disabled={postReplyStatus === "pending"}
+											>
+												{postReplyStatus === "pending"
+													? "업로드 중.."
+													: "작성하기"}
+											</button>
+										</div>
+									</ReplyInputForm>
+								)}
+							</div>
+							<ul>
+								{allReplies !== undefined && allReplies?.length === 0 ? (
+									<p>댓글이 없습니다.</p>
+								) : (
+									displayReplies?.map((reply) => {
+										return <ReplyListItem reply={reply} />;
+									})
+								)}
+							</ul>
+							{allReplies !== undefined &&
+							currentPage * REPLIES_PER_PAGE < allReplies?.length ? (
+								<MoreButton
+									onClick={handleMoreReplies}
+									isReply
+									aria-label="댓글을 추가로 더 표시합니다."
+								>
+									더보기
+								</MoreButton>
 							) : (
-								displayReplies?.map((reply) => {
-									return <ReplyListItem reply={reply} />;
-								})
+								<MoreButton
+									isReply
+									disabled
+									isDisable
+									aria-label="더이상 표시할 댓글이 없습니다."
+								>
+									더보기
+								</MoreButton>
 							)}
-						</ul>
-						{allReplies !== undefined &&
-						currentPage * REPLIES_PER_PAGE < allReplies?.length ? (
-							<MoreButton
-								onClick={handleMoreReplies}
-								isReply
-								aria-label="댓글을 추가로 더 표시합니다."
-							>
-								더보기
-							</MoreButton>
-						) : (
-							<MoreButton
-								isReply
-								disabled
-								isDisable
-								aria-label="더이상 표시할 댓글이 없습니다."
-							>
-								더보기
-							</MoreButton>
-						)}
-					</ReplyContainer>
+						</ReplyContainer>
+					)}
 				</>
 			)}
 		</section>

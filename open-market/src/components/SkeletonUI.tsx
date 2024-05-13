@@ -81,6 +81,15 @@ export function ProductDetailSkeleton() {
 					<Skeleton variant="rounded" width={200} height={50} />
 				</div>
 			</ProductExtraLinkContainer>
+			<ProductRepliesSkeleton></ProductRepliesSkeleton>
+		</Box>
+	);
+}
+
+export function ProductRepliesSkeleton() {
+	return (
+		<Box sx={{ width: "100%" }}>
+			{" "}
 			<ReplyContainer>
 				<h3>
 					<ModeCommentIcon />
