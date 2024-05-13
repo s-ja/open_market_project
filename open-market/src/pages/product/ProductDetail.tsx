@@ -9,6 +9,9 @@ import ReplyListItem, {
 	ReplyUserProfileImage,
 } from "@/components/ReplyComponent";
 import { ProductDetailSkeleton } from "@/components/SkeletonUI";
+import { useProductDetailSuspenseQuery } from "@/hooks/product/queries/detail";
+import { useProductOrderSuspenseQuery } from "@/hooks/product/queries/order";
+import { useBookMarksSuspenseQuery } from "@/hooks/user/queries/bookMark";
 import { currentUserState } from "@/states/authState";
 import { codeState } from "@/states/categoryState";
 import { Heading, MoreButton } from "@/styles/ProductListStyle";
@@ -17,7 +20,6 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ModeCommentIcon from "@mui/icons-material/ModeComment";
 import StarIcon from "@mui/icons-material/Star";
 import { Rating } from "@mui/material";
-import { AxiosError } from "axios";
 import _ from "lodash";
 import { SetStateAction, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -28,19 +30,14 @@ function ProductDetail() {
 	const navigate = useNavigate();
 
 	const { productId } = useParams();
-
 	const currentUser = useRecoilValue(currentUserState);
 	const category = useRecoilValue(codeState);
 
 	const replyRef = useRef<HTMLTextAreaElement & HTMLDivElement>(null);
 
-	const [isLoading, setIsLoading] = useState<boolean>(true);
-
-	const [product, setProduct] = useState<Product>();
-	const [order, setOrder] = useState<Order>();
+	// TODO : 지우고, useSuspenseQuery suspense적용
 	const [genre, setGenre] = useState<string>();
 	const [createdAt, setCreatedAt] = useState<string>();
-	const [bookmark, setBookmark] = useState<Bookmark>();
 
 	const [allReplies, setAllReplies] = useState<Reply[]>([]);
 	const [displayReplies, setDisplayReplies] = useState<Reply[]>([]);
@@ -53,49 +50,25 @@ function ProductDetail() {
 	const [__, setHover] = useState(-1);
 	const [isReplyLoading, setIsReplyLoading] = useState<boolean>(false);
 
-	async function fetchUserBookmarks(productId: string | undefined) {
-		try {
-			const response = await axiosInstance.get(
-				`/bookmarks/products/${productId}`,
-			);
-			if (response.status === 200) {
-				setBookmark(response.data.item);
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	}
+	const {
+		data: productDetailData,
+		error: productDetailError,
+		isLoading: productDetailLoading,
+		refetch: productDetailRefetch,
+	} = useProductDetailSuspenseQuery({
+		productId,
+	});
 
-	async function fetchProduct(id: string) {
-		try {
-			const response = await axiosInstance.get<ProductResponse>(
-				`/products/${id}`,
-			);
-			setProduct(response.data.item);
-			setRating(getRating(response.data.item));
-			setCreatedAt(formatDate(response.data.item.createdAt));
-			if (currentUser && currentUser?._id !== response.data.item.seller_id) {
-				fetchOrder(Number(id)!);
-			}
-		} catch (error) {
-			if (error instanceof AxiosError && error.response?.status === 404) {
-				return navigate("/err404", { replace: true });
-			}
-			console.error(error);
-		}
-	}
+	const {
+		data: bookMarksData,
+		error: bookMarksError,
+		isLoading: bookMarksLoading,
+	} = useBookMarksSuspenseQuery({
+		productId,
+	});
 
-	async function fetchOrder(productId: number) {
-		try {
-			const response = await axiosInstance.get<OrderListResponse>(`/orders`);
-			const userOrder = response.data.item.find(
-				(order) => order.products[0]._id === productId,
-			);
-			setOrder(userOrder);
-		} catch (error) {
-			console.error(error);
-		}
-	}
+	const { data: productOrderData, error: productOrderError } =
+		useProductOrderSuspenseQuery({ productId, currentUser, productDetailData });
 
 	async function handleReplySubmit(e: { preventDefault: () => void }) {
 		e.preventDefault();
@@ -112,7 +85,7 @@ function ProductDetail() {
 
 		try {
 			const response = await axiosInstance.post<ReplyResponse>(`/replies`, {
-				order_id: order!._id,
+				order_id: productOrderData!._id,
 				product_id: Number(productId),
 				rating: ratingValue,
 				content: replyContent,
@@ -130,7 +103,7 @@ function ProductDetail() {
 					replyRef.current!.value = "";
 					setReplyContent("");
 					setRatingValue(3);
-					fetchProduct(productId!);
+					productDetailRefetch(); // tanstack-query 리패치 함수
 					setIsReplyLoading(false);
 				}
 			}, 500);
@@ -140,8 +113,8 @@ function ProductDetail() {
 		}
 	}
 
-	function getRating(product: Product) {
-		return +_.meanBy(product.replies, "rating").toFixed(2) || 0;
+	function getRating(productDetailData: Product) {
+		return +_.meanBy(productDetailData.replies, "rating").toFixed(2) || 0;
 	}
 
 	function handleMoreReplies() {
@@ -158,29 +131,28 @@ function ProductDetail() {
 		if (productId === null || productId === "") {
 			return navigate("/err", { replace: true });
 		}
-		fetchProduct(productId!);
-		fetchUserBookmarks(productId);
 	}, []);
 
 	useEffect(() => {
 		let sessionHistory: Product[] = JSON.parse(
 			sessionStorage.getItem("historyList") || "[]",
 		);
-		if (product) {
-			setIsLoading(false);
-			if (product.replies) {
-				setAllReplies(product.replies);
+		if (productDetailData) {
+			setRating(getRating(productDetailData));
+			setCreatedAt(formatDate(productDetailData.createdAt));
+			if (productDetailData.replies) {
+				setAllReplies(productDetailData.replies);
 			}
 			if (sessionHistory.length > 5) {
 				sessionHistory.pop();
 			}
-			sessionHistory.unshift(product);
+			sessionHistory.unshift(productDetailData);
 			sessionHistory = Array.from(
 				new Set(sessionHistory.map((item) => JSON.stringify(item))),
 			).map((item) => JSON.parse(item));
 			sessionStorage.setItem("historyList", JSON.stringify(sessionHistory));
 		}
-	}, [product]);
+	}, [productDetailData]);
 
 	useEffect(() => {
 		if (allReplies) {
@@ -193,13 +165,17 @@ function ProductDetail() {
 			if (
 				code !== undefined &&
 				category !== undefined &&
-				product !== undefined
+				productDetailData !== undefined
 			) {
 				return category?.find((item) => item.code === code)?.value;
 			}
 		}
-		setGenre(translateCodeToValue(product?.extra?.category!));
-	}, [product, category]);
+		setGenre(translateCodeToValue(productDetailData?.extra?.category!));
+	}, [productDetailData, category]);
+
+	if (productDetailError || bookMarksError || productOrderError) {
+		navigate("/err404", { replace: true });
+	}
 
 	return (
 		<section>
@@ -209,21 +185,23 @@ function ProductDetail() {
 				url={`productdetail/${productId}`}
 			/>
 			<Heading>상세 페이지</Heading>
-			{isLoading ? (
+			{bookMarksLoading ||
+			productDetailLoading ||
+			productDetailData === undefined ? (
 				<ProductDetailSkeleton />
 			) : (
 				<>
 					<ProductDetailComponent
-						product={product}
+						product={productDetailData}
 						genre={genre}
 						rating={rating}
 						createdAt={createdAt!}
 					/>
 					<ProductDetailExtraLink
-						product={product}
-						order={order}
+						product={productDetailData}
+						order={productOrderData}
 						currentUser={currentUser}
-						bookmark={bookmark}
+						bookmark={bookMarksData}
 					/>
 					<ReplyContainer>
 						<h3>
@@ -233,9 +211,11 @@ function ProductDetail() {
 						<div>
 							{!currentUser ? (
 								<p>로그인 후 댓글을 작성할 수 있습니다.</p>
-							) : currentUser && currentUser?._id === product?.seller_id ? (
+							) : currentUser &&
+							  currentUser?._id === productDetailData?.seller_id ? (
 								<p>내 상품에는 댓글을 작성할 수 없습니다.</p>
-							) : (currentUser && !order) || order === undefined ? (
+							) : (currentUser && !productOrderData) ||
+							  productOrderData === undefined ? (
 								<p>음원 구매 후 댓글을 작성할 수 있습니다.</p>
 							) : (
 								<ReplyInputForm action="submit">

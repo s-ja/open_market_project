@@ -298,7 +298,7 @@ function MyPage() {
 										<ul>
 											{userReplies.slice(0, 2).map((reply: Reply) => {
 												return (
-													<li>
+													<li key={reply._id}>
 														<p>{reply.product.name}</p>
 														<span>{reply.content}</span>
 													</li>
