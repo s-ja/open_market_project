@@ -1,6 +1,6 @@
 import { axiosInstance } from "@/utils";
 
-export async function getUserBookmarks(
+export async function getProductBookmark(
 	productId?: string,
 ): Promise<Bookmark | undefined> {
 	try {

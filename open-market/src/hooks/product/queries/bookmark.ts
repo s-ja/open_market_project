@@ -1,4 +1,4 @@
-import { getUserBookmarks } from "@/apis/user/bookMarks";
+import { getProductBookmark } from "@/apis/product/bookmark";
 import { useQuery } from "@tanstack/react-query";
 
 type TParams = {
@@ -8,7 +8,7 @@ type TParams = {
 export const useBookMarksSuspenseQuery = ({ productId }: TParams) => {
 	const { data, error, isLoading } = useQuery({
 		queryKey: ["bookmark", { productId }],
-		queryFn: () => getUserBookmarks(productId),
+		queryFn: () => getProductBookmark(productId),
 	});
 
 	return { data, error, isLoading };
