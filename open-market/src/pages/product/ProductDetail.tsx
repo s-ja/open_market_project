@@ -56,24 +56,21 @@ function ProductDetail() {
 	const [ratingValue, setRatingValue] = useState<number>(3);
 	const [replyContent, setReplyContent] = useState<string>();
 	const [__, setHover] = useState(-1);
-	const {
-		data: productDetailData,
-		error: productDetailError,
-		isLoading: productDetailLoading,
-	} = useProductDetailSuspenseQuery({
-		productId,
-	});
+	const { data: productDetailData, isLoading: productDetailLoading } =
+		useProductDetailSuspenseQuery({
+			productId,
+		});
 
-	const {
-		data: bookMarksData,
-		error: bookMarksError,
-		isLoading: bookMarksLoading,
-	} = useBookMarksSuspenseQuery({
-		productId,
-	});
+	const { data: bookMarksData, isLoading: bookMarksLoading } =
+		useBookMarksSuspenseQuery({
+			productId,
+		});
 
-	const { data: productOrderData, error: productOrderError } =
-		useProductOrderSuspenseQuery({ productId, currentUser, productDetailData });
+	const { data: productOrderData } = useProductOrderSuspenseQuery({
+		productId,
+		currentUser,
+		productDetailData,
+	});
 
 	const {
 		mutate: submitReply,
@@ -171,10 +168,6 @@ function ProductDetail() {
 		}
 		setGenre(translateCodeToValue(productDetailData?.extra?.category!));
 	}, [productDetailData, category]);
-
-	if (productDetailError || bookMarksError || productOrderError) {
-		navigate("/err404", { replace: true });
-	}
 
 	return (
 		<section>
