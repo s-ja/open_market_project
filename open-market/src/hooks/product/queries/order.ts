@@ -13,7 +13,7 @@ export const useProductOrderSuspenseQuery = ({
 	productDetailData,
 }: TParams) => {
 	const { data, error, isLoading } = useQuery({
-		queryKey: ["productorder"],
+		queryKey: ["productorder", productId],
 		queryFn: () => getProductOrder(productId),
 		enabled: !!currentUser && currentUser._id !== productDetailData?.seller_id,
 	});
