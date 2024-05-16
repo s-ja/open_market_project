@@ -2,14 +2,16 @@ import FunctionalButton from "@/components/FunctionalButton";
 import HelmetSetup from "@/components/HelmetSetup";
 import { ProductPurchaseSkeleton } from "@/components/SkeletonUI";
 import Textarea from "@/components/Textarea";
+import { usePostProductOrderMutation } from "@/hooks/product/mutations/order";
+import { useProductDetailSuspenseQuery } from "@/hooks/product/queries/detail";
+import { useProductOrderSuspenseQuery } from "@/hooks/product/queries/order";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { currentUserState } from "@/states/authState";
 import { codeState } from "@/states/categoryState";
 import { Common } from "@/styles/common";
-import { axiosInstance, numberWithComma } from "@/utils";
+import { numberWithComma } from "@/utils";
 import styled from "@emotion/styled";
-import { AxiosError } from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
@@ -139,108 +141,59 @@ function ProductPurchase() {
 	const category = useRecoilValue(codeState);
 	const currentUser = useRecoilValue(currentUserState);
 
-	const [isLoading, setIsLoading] = useState<boolean>(true);
-
-	const [product, setProduct] = useState<Product>();
 	const [genre, setGenre] = useState<string>();
 
 	useRequireAuth();
 
-	async function fetchProduct(id: string) {
-		try {
-			const response = await axiosInstance.get<ProductResponse>(
-				`/products/${id}`,
-			);
-			if (currentUser?._id === response.data.item?.seller_id) {
-				toast.error("비정상적인 접근입니다.", {
-					ariaProps: {
-						role: "status",
-						"aria-live": "polite",
-					},
-				});
-				return navigate("/", { replace: true });
-			}
-			fetchOrder(+id).then(() => {
-				setProduct(response.data.item);
-			});
-		} catch (error) {
-			if (error instanceof AxiosError && error.response?.status === 404) {
-				return navigate("/err404", { replace: true });
-			}
-			console.error(error);
-		}
-	}
+	const { data: productDetailData, isLoading: productDetailLoading } =
+		useProductDetailSuspenseQuery({
+			productId,
+		});
 
-	async function fetchOrder(productId: number) {
-		try {
-			const response = await axiosInstance.get<OrderListResponse>(`/orders`);
-			if (
-				response.data.item.some((order) => order.products[0]._id === productId)
-			) {
-				toast.error("비정상적인 접근입니다.", {
-					ariaProps: {
-						role: "status",
-						"aria-live": "polite",
-					},
-				});
-				return navigate("/", { replace: true });
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	}
+	const { data: productOrderData } = useProductOrderSuspenseQuery({
+		productId,
+		currentUser,
+		productDetailData,
+	});
+
+	const { mutate: postOrder } = usePostProductOrderMutation();
 
 	async function handleProductOrder() {
 		if (confirm("구매하시겠습니까?")) {
-			try {
-				const response = await axiosInstance.post<OrderResponse>("/orders", {
-					products: [
-						{
-							_id: product?._id,
-							quantity: 1,
-						},
-					],
-				});
-				if (response.data.ok) {
-					toast.success("구매 완료!", {
-						ariaProps: {
-							role: "status",
-							"aria-live": "polite",
-						},
-					});
-					navigate(`/orders`);
-				}
-			} catch (error) {
-				console.error(error);
-			}
+			postOrder(productId!);
 		}
 	}
 
-	useEffect(() => {
-		if (productId === null || productId === "") {
-			return navigate("/err404", { replace: true });
+	useLayoutEffect(() => {
+		if (currentUser?._id === productDetailData?.seller_id || productOrderData) {
+			toast.error("비정상적인 접근입니다.", {
+				ariaProps: {
+					role: "status",
+					"aria-live": "polite",
+				},
+			});
+			return navigate("/", { replace: true });
 		}
-		fetchProduct(productId!);
-	}, []);
+	}, [productDetailData, productOrderData]);
 
 	useEffect(() => {
-		if (product) {
-			setIsLoading(false);
+		if (productDetailData === undefined) {
+			return navigate("/err404", { replace: true });
 		}
-	}, [product]);
+	}, []);
 
 	useEffect(() => {
 		function translateCodeToValue(code: string) {
 			if (
 				code !== undefined &&
 				category !== undefined &&
-				product !== undefined
+				productDetailData !== undefined
 			) {
 				return category!.find((item) => item.code === code)?.value;
 			}
 		}
-		setGenre(translateCodeToValue(product?.extra?.category!));
-	}, [product, category]);
+		setGenre(translateCodeToValue(productDetailData?.extra?.category!));
+	}, [productDetailData, category]);
 
 	return (
 		<ProductPurchaseSection>
@@ -250,25 +203,32 @@ function ProductPurchase() {
 				url={`productpurchase/${productId}`}
 			/>
 			<h2 className="a11yHidden">상품 구매</h2>
-			{isLoading ? (
+			{productDetailLoading ? (
 				<ProductPurchaseSkeleton />
 			) : (
 				<ProductInfoWrapper>
 					<FormTopLayout>
 						<img
-							src={`${product?.mainImages[0].path}`}
-							alt={product?.name ? `${product.name}의 앨범 아트` : ""}
+							src={`${productDetailData?.mainImages[0].path}`}
+							alt={
+								productDetailData?.name
+									? `${productDetailData.name}의 앨범 아트`
+									: ""
+							}
 							className="ProductImage"
 						/>
 						<FormTopRightLayout>
 							<ProductItemWrapper>
 								<ProductLabel bar>제목</ProductLabel>
-								<ProductValue>{product?.name}</ProductValue>
+								<ProductValue>{productDetailData?.name}</ProductValue>
 							</ProductItemWrapper>
 							<FlexLayout>
 								<ProductItemWrapper wide>
 									<ProductLabel bar>아티스트</ProductLabel>
-									<ProductValue> {product?.extra?.sellerName}</ProductValue>
+									<ProductValue>
+										{" "}
+										{productDetailData?.extra?.sellerName}
+									</ProductValue>
 								</ProductItemWrapper>
 								<ProductItemWrapper>
 									<ProductLabel bar>장르</ProductLabel>
@@ -276,12 +236,16 @@ function ProductPurchase() {
 								</ProductItemWrapper>
 							</FlexLayout>
 							<ContentWrapper>
-								<Textarea readOnly={true} content={product?.content} small />
+								<Textarea
+									readOnly={true}
+									content={productDetailData?.content}
+									small
+								/>
 								<span
 									className="ContentInHash"
 									aria-label="상품에 등록된 해시태그 목록"
 								>
-									{product?.extra?.tags?.map((tag) => `#${tag} `)}
+									{productDetailData?.extra?.tags?.map((tag) => `#${tag} `)}
 								</span>
 							</ContentWrapper>
 						</FormTopRightLayout>
@@ -289,8 +253,8 @@ function ProductPurchase() {
 					<ProductItemWrapper large aria-label="결제 정보 : 가격">
 						<ProductLabel>결제 정보</ProductLabel>
 						<ProductValue large>
-							{product?.price !== undefined
-								? numberWithComma(product.price)
+							{productDetailData?.price !== undefined
+								? numberWithComma(productDetailData.price)
 								: 0}
 							₩
 						</ProductValue>
