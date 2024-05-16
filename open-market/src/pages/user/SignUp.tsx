@@ -1,41 +1,17 @@
 import AuthInput from "@/components/AuthInput";
 import HelmetSetup from "@/components/HelmetSetup";
+import { useSignUpMutation } from "@/hooks/user/queries/useSignUpMutation";
 import { Common } from "@/styles/common";
 import { axiosInstance, debounce } from "@/utils";
 import styled from "@emotion/styled";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import Checkbox from "@mui/material/Checkbox";
-import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import logoImage from "/logo/logo1.svg";
-
-interface SignUpForm {
-	email: string;
-	password: string;
-	confirmPassword: string;
-	name: string;
-	phone: string;
-	extra: {
-		terms: {
-			termsOfUse: boolean;
-			providingPersonalInformation: boolean;
-			recievingMarketingInformation: boolean;
-			confirmAge: boolean;
-		};
-	};
-}
-
-interface SignUpRequest {
-	email: string;
-	password: string;
-	name: string;
-	phone: string;
-	type: string;
-}
 
 const Title = styled.h2`
 	${Common.a11yHidden};
@@ -172,71 +148,6 @@ const Submit = styled.button`
 
 function SignUp() {
 	const navigate = useNavigate();
-	const signUpMutation = useMutation({
-		mutationFn: async (newUser: SignUpRequest) => {
-			const response = await axiosInstance.post("/users/", newUser);
-			return response.data;
-		},
-		onSuccess: () => {
-			toast.success("회원가입 완료!", {
-				ariaProps: {
-					role: "status",
-					"aria-live": "polite",
-				},
-			});
-
-			navigate("/signin");
-		},
-		onError: (error: any) => {
-			console.error(error);
-
-			if (error.response) {
-				switch (error.response.status) {
-					case 409:
-						toast.error(
-							error.response.data.message || "이미 등록된 이메일입니다.",
-						);
-						break;
-					case 422:
-						const errorMessages = error.response.data.errors
-							.map((err: { msg: string }) => `${err.msg}`)
-							.join("\n");
-						toast.error(`회원가입 실패: ${errorMessages}`, {
-							ariaProps: {
-								role: "status",
-								"aria-live": "polite",
-							},
-						});
-						break;
-					case 500:
-						toast.error(
-							"서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
-							{
-								ariaProps: {
-									role: "status",
-									"aria-live": "polite",
-								},
-							},
-						);
-						break;
-					default:
-						toast.error("회원가입 중 알 수 없는 오류가 발생했습니다.", {
-							ariaProps: {
-								role: "status",
-								"aria-live": "polite",
-							},
-						});
-				}
-			} else {
-				toast.error("회원가입 중 알 수 없는 오류가 발생했습니다.", {
-					ariaProps: {
-						role: "status",
-						"aria-live": "polite",
-					},
-				});
-			}
-		},
-	});
 
 	const [form, setForm] = useState<SignUpForm>({
 		email: "",
@@ -253,6 +164,8 @@ function SignUp() {
 			},
 		},
 	});
+
+	const { mutate: signUp, isPending, error } = useSignUpMutation();
 
 	const [emailCheck, setEmailCheck] = useState({
 		checked: false,
@@ -391,7 +304,7 @@ function SignUp() {
 			return;
 		}
 		const userObject = createUserObject();
-		signUpMutation.mutate(userObject);
+		signUp(userObject);
 	}
 
 	useEffect(() => {
@@ -406,6 +319,12 @@ function SignUp() {
 			return navigate("/", { replace: true });
 		}
 	}, []);
+
+	useEffect(() => {
+		if (error) {
+			toast.error("회원가입 오류: " + error.message);
+		}
+	}, [error]);
 
 	useEffect(() => {
 		const allChecked =
@@ -621,7 +540,9 @@ function SignUp() {
 							</li>
 						</ul>
 					</Fieldset>
-					<Submit type="submit">회원가입</Submit>
+					<Submit type="submit" disabled={isPending}>
+						{isPending ? "처리중..." : "회원가입"}
+					</Submit>
 				</Form>
 			</Wrapper>
 		</Backgroud>

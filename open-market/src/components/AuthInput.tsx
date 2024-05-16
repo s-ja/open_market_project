@@ -8,6 +8,7 @@ interface AuthInputProps {
 	type: string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	defaultValue?: string;
+	value?: string;
 	placeholder?: string;
 	required?: boolean;
 	readonly?: boolean;
@@ -53,6 +54,7 @@ function AuthInput(props: AuthInputProps) {
 		label,
 		type,
 		defaultValue,
+		value,
 		onChange,
 		placeholder,
 		required,
@@ -66,6 +68,7 @@ function AuthInput(props: AuthInputProps) {
 				id={id}
 				name={name}
 				defaultValue={defaultValue}
+				value={value}
 				onChange={onChange}
 				placeholder={placeholder}
 				required={required}

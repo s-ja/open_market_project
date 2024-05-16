@@ -1,14 +1,11 @@
 import AuthInput from "@/components/AuthInput";
 import HelmetSetup from "@/components/HelmetSetup";
-import { currentUserState } from "@/states/authState";
+import { useSignInMutation } from "@/hooks/user/queries/useSignInMutation";
 import { Common } from "@/styles/common";
-import { axiosInstance, debounce } from "@/utils";
+import { debounce } from "@/utils";
 import styled from "@emotion/styled";
-import axios from "axios";
 import React, { useState } from "react";
-import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
-import { useSetRecoilState } from "recoil";
+import { Link } from "react-router-dom";
 import logoImage from "/logo/logo1.svg";
 
 const Title = styled.h2`
@@ -98,68 +95,14 @@ const Ul = styled.ul`
 `;
 
 function SignIn() {
-	const navigate = useNavigate();
-
-	const setCurrentUser = useSetRecoilState(currentUserState);
-
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const { mutate: handleLogin, isPending } = useSignInMutation();
 
-	async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+	const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-
-		try {
-			const response = await axiosInstance.post<UserResponse>("/users/login", {
-				email,
-				password,
-			});
-
-			if (response.data.ok === 1 && response.data.item.token) {
-				const userInfo = response.data.item;
-
-				localStorage.setItem("accessToken", userInfo.token.accessToken);
-				localStorage.setItem("refreshToken", userInfo.token.refreshToken);
-
-				toast.success("로그인 성공!", {
-					ariaProps: {
-						role: "status",
-						"aria-live": "polite",
-					},
-				});
-
-				setCurrentUser({
-					_id: userInfo._id,
-					name: userInfo.name,
-					profileImage: userInfo.extra?.profileImage
-						? userInfo.extra?.profileImage
-						: null,
-				});
-				navigate("/");
-			}
-		} catch (error: any) {
-			if (axios.isAxiosError(error) && error.response) {
-				const errorMessage = error.response.data.message;
-
-				if (
-					error.response.data.errors &&
-					error.response.data.errors.length > 0
-				) {
-					const detailedMessages = error.response.data.errors
-						.map((err: any) => `${err.msg} (${err.path})`)
-						.join("\n");
-					toast.error(`${detailedMessages}`);
-				} else {
-					toast.error(errorMessage);
-				}
-			} else {
-				const errorMessage =
-					error.response && error.response.data
-						? error.response.data.message
-						: "알 수 없는 오류가 발생했습니다.";
-				toast.error(errorMessage);
-			}
-		}
-	}
+		handleLogin({ email, password });
+	};
 
 	return (
 		<Backgroud>
@@ -173,7 +116,7 @@ function SignIn() {
 				</Link>
 			</Logo>
 			<Title>로그인</Title>
-			<Form onSubmit={handleLogin}>
+			<Form onSubmit={handleFormSubmit}>
 				<Fieldset>
 					<legend>로그인</legend>
 					<AuthInput
@@ -204,7 +147,9 @@ function SignIn() {
 					/>
 				</Fieldset>
 
-				<Submit type="submit">로그인</Submit>
+				<Submit type="submit" disabled={isPending}>
+					{isPending ? "처리중..." : "로그인"}
+				</Submit>
 				<Ul>
 					<li>
 						<Link to="/signup">회원가입</Link>
