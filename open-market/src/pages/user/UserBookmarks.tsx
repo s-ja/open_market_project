@@ -161,7 +161,12 @@ function UserBookmarks() {
 									</StyledLink>
 									<button
 										className="iconWrapper"
-										onClick={() => deleteBookmark(bookmark._id.toString())}
+										onClick={() =>
+											deleteBookmark({
+												bookmarkId: bookmark._id,
+												productId: bookmark.product_id,
+											})
+										}
 									>
 										북마크 삭제
 										<Delete

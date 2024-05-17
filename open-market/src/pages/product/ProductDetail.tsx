@@ -12,7 +12,6 @@ import {
 	ProductDetailSkeleton,
 	ProductRepliesSkeleton,
 } from "@/components/SkeletonUI";
-import { useBookMarksSuspenseQuery } from "@/hooks/product/queries/bookmark";
 import { useProductDetailSuspenseQuery } from "@/hooks/product/queries/detail";
 import { useProductOrderSuspenseQuery } from "@/hooks/product/queries/order";
 import { useProductRepliesQuery } from "@/hooks/product/queries/reply";
@@ -56,13 +55,9 @@ function ProductDetail() {
 	const [ratingValue, setRatingValue] = useState<number>(3);
 	const [replyContent, setReplyContent] = useState<string>();
 	const [__, setHover] = useState(-1);
+
 	const { data: productDetailData, isLoading: productDetailLoading } =
 		useProductDetailSuspenseQuery({
-			productId,
-		});
-
-	const { data: bookMarksData, isLoading: bookMarksLoading } =
-		useBookMarksSuspenseQuery({
 			productId,
 		});
 
@@ -177,9 +172,7 @@ function ProductDetail() {
 				url={`productdetail/${productId}`}
 			/>
 			<Heading>상세 페이지</Heading>
-			{bookMarksLoading ||
-			productDetailLoading ||
-			productDetailData === undefined ? (
+			{productDetailLoading || productDetailData === undefined ? (
 				<ProductDetailSkeleton />
 			) : (
 				<>
@@ -193,7 +186,6 @@ function ProductDetail() {
 						product={productDetailData}
 						order={productOrderData}
 						currentUser={currentUser}
-						bookmark={bookMarksData}
 					/>
 					{isLoadingProductReplies ? (
 						<ProductRepliesSkeleton />

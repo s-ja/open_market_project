@@ -22,7 +22,7 @@ interface Product {
 		soundFile: ProductFiles;
 	};
 	replies?: Reply[];
-	bookmarks?: number | Bookmark[];
+	bookmarks?: Bookmark[];
 }
 
 interface ProductResponse {

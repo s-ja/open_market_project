@@ -1,7 +1,7 @@
 import { axiosInstance } from "@/utils";
 
 export async function getProductBookmark(
-	productId?: string,
+	productId?: string | number,
 ): Promise<Bookmark | undefined> {
 	try {
 		const response = await axiosInstance.get(
