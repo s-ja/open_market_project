@@ -1,13 +1,15 @@
 import HelmetSetup from "@/components/HelmetSetup";
 import MyPageList from "@/components/MyPageList";
-import { useUserRepliesQuery } from "@/hooks/user/queries/replies";
+import { MyPageListSkeleton, UserDataSkeleton } from "@/components/SkeletonUI";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { useUserBookmarksQuery } from "@/hooks/user/queries/bookmarks";
+import { useUserOrdersQuery } from "@/hooks/user/queries/orders";
+import { useUserProductsQuery } from "@/hooks/user/queries/products";
+import { useUserRepliesQuery } from "@/hooks/user/queries/replies";
+import { useUserDataQuery } from "@/hooks/user/queries/user";
 import { currentUserState } from "@/states/authState";
 import { Common } from "@/styles/common";
-import { axiosInstance } from "@/utils";
 import styled from "@emotion/styled";
-import Skeleton from "@mui/material/Skeleton";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 
@@ -41,13 +43,13 @@ const Article = styled.article`
 	gap: ${Common.space.spacingXl};
 `;
 
-const Info = styled.div`
+export const Info = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
 `;
 
-const PersonalInfo = styled.div`
+export const PersonalInfo = styled.div`
 	position: relative;
 	display: flex;
 	flex-direction: column;
@@ -85,7 +87,7 @@ const UserImage = styled.img`
 	border-radius: 50%;
 `;
 
-const Comment = styled.div`
+export const Comment = styled.div`
 	position: relative;
 	display: flex;
 	flex-direction: column;
@@ -167,26 +169,6 @@ const Image = styled.img`
 	object-fit: cover;
 `;
 
-async function fetchUserInfo(userId: string) {
-	const response = await axiosInstance.get(`/users/${userId}`);
-	return response.data.item;
-}
-
-async function fetchUserProductsInfo() {
-	const response = await axiosInstance.get(`/seller/products/`);
-	return response.data.item;
-}
-
-async function fetchUserOrderInfo() {
-	const response = await axiosInstance.get(`/orders`);
-	return response.data.item;
-}
-
-async function fetchBookmarks() {
-	const response = await axiosInstance.get(`/bookmarks`);
-	return response.data.item;
-}
-
 const formatPhoneNumber = (phoneNumber: number) => {
 	// Ensure the input is a string
 	const cleaned = ("" + phoneNumber).replace(/\D/g, "");
@@ -205,24 +187,17 @@ function MyPage() {
 
 	const currentUser = useRecoilValue(currentUserState);
 
-	const { data: userInfo, isLoading: isLoadingUserInfo } = useQuery({
-		queryKey: ["userInfo", currentUser?._id.toString()],
-		queryFn: () => fetchUserInfo(currentUser!._id.toString()),
-	});
-	const { data: userProductsInfo, isLoading: isLoadingProductsInfo } = useQuery(
-		{
-			queryKey: ["userProducts", currentUser?._id.toString()],
-			queryFn: () => fetchUserProductsInfo(),
-		},
+	const { data: userData, isLoading: isLoadingUserData } = useUserDataQuery(
+		currentUser!._id.toString(),
 	);
-	const { data: userOrdersInfo, isLoading: isLoadingOrdersInfo } = useQuery({
-		queryKey: ["userOrders", currentUser?._id.toString()],
-		queryFn: () => fetchUserOrderInfo(),
-	});
-	const { data: bookmarkDetails, isLoading: isLoadingBookmarks } = useQuery({
-		queryKey: ["bookmarks", currentUser?._id.toString()],
-		queryFn: () => fetchBookmarks(),
-	});
+
+	const { data: userProducts, isLoading: isLoadingProducts } =
+		useUserProductsQuery();
+
+	const { data: userOrders, isLoading: isLoadingOrders } = useUserOrdersQuery();
+
+	const { data: bookmarkDetails, isLoading: isLoadingBookmarks } =
+		useUserBookmarksQuery();
 
 	const { data: userReplies, isLoading: isLoadingUserReplies } =
 		useUserRepliesQuery();
@@ -231,25 +206,7 @@ function MyPage() {
 		sessionStorage.getItem("historyList") as string,
 	);
 
-	const profileImageUrl = userInfo?.extra?.profileImage || "/user.svg";
-
-	const UserInfoSkeleton = () => (
-		<>
-			<Skeleton variant="circular" width={200} height={200} />
-			<Info>
-				<PersonalInfo>
-					<Skeleton variant="text" width={100} height={24} />
-					<Skeleton variant="text" width={960} height={12} />
-					<Skeleton variant="text" width={960} height={12} />
-				</PersonalInfo>
-				<Comment>
-					<Skeleton variant="text" width={100} height={24} />
-					<Skeleton variant="text" width={960} height={12} />
-					<Skeleton variant="text" width={960} height={12} />
-				</Comment>
-			</Info>
-		</>
-	);
+	const profileImageUrl = userData?.extra?.profileImage || "/user.svg";
 
 	return (
 		<Section>
@@ -257,13 +214,13 @@ function MyPage() {
 			<MainTitle>마이페이지</MainTitle>
 			<Article>
 				<InfoTitle>내 정보</InfoTitle>
-				{isLoadingUserInfo || isLoadingUserReplies ? (
-					<UserInfoSkeleton />
+				{isLoadingUserData || isLoadingUserReplies ? (
+					<UserDataSkeleton />
 				) : (
 					<>
 						<UserImage
 							src={profileImageUrl}
-							alt={`${userInfo.name}님의 프로필 이미지`}
+							alt={`${userData.name}님의 프로필 이미지`}
 						/>
 						<Info>
 							<PersonalInfo>
@@ -271,15 +228,15 @@ function MyPage() {
 								<PersonalInfoItem>
 									<div>
 										<h5>이메일 : </h5>
-										<p>{userInfo.email}</p>
+										<p>{userData.email}</p>
 									</div>
 									<div>
 										<h5>이름 : </h5>
-										<p>{userInfo.name}</p>
+										<p>{userData.name}</p>
 									</div>
 									<div>
 										<h5>휴대폰 번호 : </h5>
-										<p>{formatPhoneNumber(userInfo.phone)}</p>
+										<p>{formatPhoneNumber(userData.phone)}</p>
 									</div>
 								</PersonalInfoItem>
 								<StyledLink to={`/useredit/${currentUser!._id}`}>
@@ -313,12 +270,7 @@ function MyPage() {
 				)}
 			</Article>
 			{isLoadingBookmarks ? (
-				<Skeleton
-					variant="rounded"
-					width="100%"
-					height={241}
-					animation="wave"
-				/>
+				<MyPageListSkeleton />
 			) : (
 				<MyPageList
 					title="북마크"
@@ -351,17 +303,12 @@ function MyPage() {
 					</Link>
 				)}
 			/>
-			{isLoadingProductsInfo ? (
-				<Skeleton
-					variant="rounded"
-					width="100%"
-					height={241}
-					animation="wave"
-				/>
+			{isLoadingOrders ? (
+				<MyPageListSkeleton />
 			) : (
 				<MyPageList
 					title="구매내역"
-					data={isLoadingOrdersInfo ? [] : (userOrdersInfo || []).slice(0, 5)}
+					data={isLoadingOrders ? [] : (userOrders || []).slice(0, 5)}
 					emptyMessage="구매내역이 없습니다."
 					renderItem={(item) => (
 						<Link to={`/productdetail/${item.products[0]._id}`}>
@@ -376,19 +323,12 @@ function MyPage() {
 					linkUrl="/orders"
 				/>
 			)}
-			{isLoadingOrdersInfo ? (
-				<Skeleton
-					variant="rounded"
-					width="100%"
-					height={241}
-					animation="wave"
-				/>
+			{isLoadingProducts ? (
+				<MyPageListSkeleton />
 			) : (
 				<MyPageList
 					title="판매상품관리"
-					data={
-						isLoadingProductsInfo ? [] : (userProductsInfo || []).slice(0, 5)
-					}
+					data={isLoadingProducts ? [] : (userProducts || []).slice(0, 5)}
 					emptyMessage="판매내역이 없습니다."
 					renderItem={(item) => (
 						<Link to={`/productmanage/${item._id}`}>

@@ -4,6 +4,7 @@ import { UserProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
 import { ProductListSkeleton } from "@/components/SkeletonUI";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { useUserProductsInfiniteQuery } from "@/hooks/user/queries/products";
 import {
 	Heading,
 	MoreButton,
@@ -12,13 +13,11 @@ import {
 	ProductSection,
 } from "@/styles/ProductListStyle";
 import {
-	axiosInstance,
 	searchProductList,
 	setItemWithExpireTime,
 	sortByNewestProductList,
 	sortByProfitProductList,
 } from "@/utils";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 function UserProducts() {
@@ -28,18 +27,6 @@ function UserProducts() {
 	const [userProductsInfo, setUserProductsInfo] = useState<Product[]>([]);
 	const [searchedProductList, setSearchedProductList] = useState<Product[]>();
 
-	async function fetchUserProductsInfo({ pageParam = 1 }) {
-		try {
-			const { data } = await axiosInstance.get(
-				`/seller/products?page=${pageParam}&limit=8`,
-			);
-			return data;
-		} catch (error) {
-			console.error("상품 리스트 조회 실패:", error);
-			return [];
-		}
-	}
-
 	const {
 		data,
 		error,
@@ -48,15 +35,8 @@ function UserProducts() {
 		hasNextPage,
 		fetchNextPage,
 		isFetchingNextPage,
-	} = useInfiniteQuery({
-		queryKey: ["seller/products"],
-		queryFn: fetchUserProductsInfo,
-		initialPageParam: 1,
-		getNextPageParam: (lastPage) =>
-			lastPage.pagination.page < lastPage.pagination.totalPages
-				? lastPage.pagination.page + 1
-				: null,
-	});
+	} = useUserProductsInfiniteQuery();
+
 	const fetchedProductList = data?.pages.flatMap((page) => page.item) || [];
 
 	function handleSearchKeyword(e: { preventDefault: () => void }) {

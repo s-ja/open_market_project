@@ -20,6 +20,7 @@ import {
 	ProductDetailInfo,
 } from "./ProductDetailComponent";
 import { ReplyContainer } from "./ReplyComponent";
+import { Comment, Info, PersonalInfo } from "@/pages/user/MyPage";
 
 export function IndexSkeleton({ searchKeyword }: { searchKeyword: string }) {
 	return (
@@ -226,4 +227,30 @@ export function ProductListSkeleton() {
 
 export function AudioSkeleton() {
 	return <Skeleton variant="rounded" width={813} height={32} />;
+}
+
+export function UserDataSkeleton() {
+	return (
+		<>
+			<Skeleton variant="circular" width={200} height={200} />
+			<Info>
+				<PersonalInfo>
+					<Skeleton variant="text" width={100} height={24} />
+					<Skeleton variant="text" width={860} height={12} />
+					<Skeleton variant="text" width={860} height={12} />
+				</PersonalInfo>
+				<Comment>
+					<Skeleton variant="text" width={100} height={24} />
+					<Skeleton variant="text" width={860} height={12} />
+					<Skeleton variant="text" width={860} height={12} />
+				</Comment>
+			</Info>
+		</>
+	);
+}
+
+export function MyPageListSkeleton() {
+	return (
+		<Skeleton variant="rounded" width="100%" height={241} animation="wave" />
+	);
 }

@@ -200,11 +200,8 @@ function ProductEdit() {
 	const [imageLoading, setImageLoading] = useState<boolean>(false);
 
 	const { mutate: patchProduct } = usePatchProductMutation();
-	const {
-		data: userProductDetail,
-		error: userProductDetailError,
-		isLoading: userProductDetailLoading,
-	} = useUserProductDetailSuspenseQuery(productId);
+	const { data: userProductDetail, isLoading: userProductDetailLoading } =
+		useUserProductDetailSuspenseQuery(productId);
 
 	useRequireAuth();
 
@@ -264,10 +261,6 @@ function ProductEdit() {
 			setUserProductInfo(userProductDetail);
 		}
 	}, [userProductDetail]);
-
-	if (userProductDetailError) {
-		navigate("/err404", { replace: true });
-	}
 
 	return (
 		<ProductEditSection>

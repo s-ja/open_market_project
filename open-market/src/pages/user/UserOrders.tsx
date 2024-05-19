@@ -3,6 +3,7 @@ import { ProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
 import { ProductListSkeleton } from "@/components/SkeletonUI";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { useUserOrdersInfiniteQuery } from "@/hooks/user/queries/orders";
 import {
 	Heading,
 	MoreButton,
@@ -10,12 +11,7 @@ import {
 	ProductList,
 	ProductSection,
 } from "@/styles/ProductListStyle";
-import {
-	axiosInstance,
-	getItemWithExpireTime,
-	searchProductList,
-} from "@/utils";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { getItemWithExpireTime, searchProductList } from "@/utils";
 import { useEffect, useRef, useState } from "react";
 
 function UserOrders() {
@@ -27,18 +23,6 @@ function UserOrders() {
 
 	useRequireAuth();
 
-	async function fetchOrderProductsInfo({ pageParam = 1 }) {
-		try {
-			const { data } = await axiosInstance.get(
-				`/orders?page=${pageParam}&limit=8`,
-			);
-
-			return data;
-		} catch (error) {
-			console.error(error);
-		}
-	}
-
 	const {
 		data,
 		error,
@@ -47,15 +31,7 @@ function UserOrders() {
 		hasNextPage,
 		fetchNextPage,
 		isFetchingNextPage,
-	} = useInfiniteQuery({
-		queryKey: ["orders"],
-		queryFn: fetchOrderProductsInfo,
-		initialPageParam: 1,
-		getNextPageParam: (lastPage) =>
-			lastPage.pagination.page < lastPage.pagination.totalPages
-				? lastPage.pagination.page + 1
-				: null,
-	});
+	} = useUserOrdersInfiniteQuery();
 
 	const fetchedOrderProductList =
 		data?.pages.flatMap((page) => page.item) || [];
