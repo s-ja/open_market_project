@@ -72,7 +72,7 @@ function ProductDetail() {
 		isSuccess,
 		isError: replyError,
 		status: postReplyStatus,
-	} = usePostReplyMutation();
+	} = usePostReplyMutation({ productId });
 
 	async function handleReplySubmit(e: { preventDefault: () => void }) {
 		e.preventDefault();

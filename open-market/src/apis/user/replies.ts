@@ -6,5 +6,6 @@ export async function getUserReplies(): Promise<Reply[] | undefined> {
 		return response.data.item;
 	} catch (error) {
 		console.error(error);
+		throw error;
 	}
 }

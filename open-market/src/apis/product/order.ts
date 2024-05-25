@@ -13,6 +13,7 @@ export async function getProductOrder(productId?: string) {
 		return userOrder;
 	} catch (error) {
 		console.error(error);
+		throw error;
 	}
 }
 

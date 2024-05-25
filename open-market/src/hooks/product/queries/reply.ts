@@ -6,9 +6,10 @@ type TParams = {
 };
 
 export function useProductRepliesQuery({ productId }: TParams) {
-	return useQuery({
-		queryKey: ["productReplies"],
+	const { data, error, isLoading } = useQuery({
+		queryKey: ["productReplies", productId],
 		queryFn: () => getProductReplies(productId),
 		enabled: productId !== undefined,
 	});
+	return { data, error, isLoading };
 }

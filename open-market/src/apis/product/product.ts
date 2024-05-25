@@ -32,6 +32,7 @@ export async function getProductDetail(
 		return response.data.item;
 	} catch (error) {
 		console.error(error);
+		throw error;
 	}
 }
 

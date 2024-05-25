@@ -8,16 +8,22 @@ export async function getProductReplies(
 		return response.data.item;
 	} catch (error) {
 		console.error(error);
+		throw error;
 	}
 }
 
 export async function postProductReply(
 	replyData: PostReply,
-): Promise<PostReply> {
-	const response = await axiosInstance.post<PostReplyResponse>(
-		`/replies`,
-		replyData,
-	);
+): Promise<PostReply | undefined> {
+	try {
+		const response = await axiosInstance.post<PostReplyResponse>(
+			`/replies`,
+			replyData,
+		);
 
-	return response.data.item;
+		return response.data.item;
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
 }
