@@ -2,10 +2,9 @@ import FunctionalButton from "@/components/FunctionalButton";
 import HelmetSetup from "@/components/HelmetSetup";
 import { ProductManagementSkeleton } from "@/components/SkeletonUI";
 import Textarea from "@/components/Textarea";
-import { useDeleteProductMutation } from "@/hooks/product/mutations/delete";
+import { useDeleteProductMutation } from "@/hooks/product/mutations/useDeleteProductMutation";
+import { useUserProductDetailSuspenseQuery } from "@/hooks/product/queries/useUserProductDetailSuspenseQuery";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
-import { useUserProductDetailSuspenseQuery } from "@/hooks/user/queries/detail";
-import { currentUserState } from "@/states/authState";
 import { codeState } from "@/states/categoryState";
 import { Common } from "@/styles/common";
 import { numberWithComma } from "@/utils";
@@ -192,7 +191,6 @@ function ProductManage() {
 
 	const { productId } = useParams();
 
-	const currentUser = useRecoilValue(currentUserState);
 	const category = useRecoilValue(codeState);
 
 	const [genre, setGenre] = useState<string>();
@@ -211,7 +209,7 @@ function ProductManage() {
 
 		deleteProduct(productId, {
 			onSuccess: () => {
-				navigate(`/user/${currentUser?._id}/products`);
+				navigate(`/user/products`);
 			},
 			onError: (error) => {
 				console.error("상품 삭제 중 오류 발생", error);
@@ -237,7 +235,7 @@ function ProductManage() {
 			<HelmetSetup
 				title="Manage Product"
 				description="판매 음원 관리"
-				url={`productmanage/${productId}`}
+				url={`/product/manage/${productId}`}
 			/>
 			<h2 className="a11yHidden">상품 관리</h2>
 			{userProductDetailLoading ? (
@@ -245,7 +243,7 @@ function ProductManage() {
 			) : (
 				<ProductInfoWrapper>
 					<UserProductListLink
-						to={`/user/${currentUser!._id}/products`}
+						to={`/user/products`}
 						aria-label="판매 상품 목록으로 이동"
 					>
 						&gt; 판매 상품 목록
@@ -261,9 +259,7 @@ function ProductManage() {
 								<ProductLabel bar>제목</ProductLabel>
 								<ProductValue>{userProductDetail?.name}</ProductValue>
 								{userProductDetail?.show ? (
-									<ProductDetailLink
-										to={`/productdetail/${userProductDetail?._id}`}
-									>
+									<ProductDetailLink to={`/product/${userProductDetail?._id}`}>
 										상세 페이지 확인
 									</ProductDetailLink>
 								) : (
@@ -278,7 +274,9 @@ function ProductManage() {
 								<ProductItemWrapper wide>
 									<ProductLabel bar>해시태그</ProductLabel>
 									<ProductValue>
-										{userProductDetail?.extra?.tags?.map((i) => `#${i} `)}
+										{userProductDetail?.extra?.tags?.map(
+											(i: string) => `#${i} `,
+										)}
 									</ProductValue>
 								</ProductItemWrapper>
 							</FlexLayout>
@@ -327,7 +325,7 @@ function ProductManage() {
 							text="삭제"
 						/>
 						<LinkedEditButton
-							to={`/productedit/${userProductDetail?._id}`}
+							to={`/product/edit/${userProductDetail?._id}`}
 							title="수정하러 가기"
 						>
 							수정

@@ -3,8 +3,8 @@ import HelmetSetup from "@/components/HelmetSetup";
 import { UserProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
 import { ProductListSkeleton } from "@/components/SkeletonUI";
+import { useUserProductsInfiniteQuery } from "@/hooks/product/queries/useUserProductsQueries";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
-import { useUserProductsInfiniteQuery } from "@/hooks/user/queries/products";
 import {
 	Heading,
 	MoreButton,
@@ -107,7 +107,7 @@ function UserProducts() {
 			<HelmetSetup
 				title="My Products"
 				description="판매 음원 목록"
-				url="orders"
+				url="/user/products"
 			/>
 			<Heading>상품관리</Heading>
 			{userProductsInfo ? (

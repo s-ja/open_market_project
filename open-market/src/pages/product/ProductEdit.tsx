@@ -5,9 +5,9 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import SelectGenre from "@/components/SelectGenre";
 import { ProductEditSkeleton } from "@/components/SkeletonUI";
 import Textarea from "@/components/Textarea";
-import { usePatchProductMutation } from "@/hooks/product/mutations/edit";
+import { usePatchProductMutation } from "@/hooks/product/mutations/usePatchProductMutation";
+import { useUserProductDetailSuspenseQuery } from "@/hooks/product/queries/useUserProductDetailSuspenseQuery";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
-import { useUserProductDetailSuspenseQuery } from "@/hooks/user/queries/detail";
 import { codeState } from "@/states/categoryState";
 import { Common } from "@/styles/common";
 import { debounce } from "@/utils";
@@ -27,21 +27,6 @@ interface FlexLayoutProps {
 	right?: boolean;
 }
 
-export interface ProductEditForm {
-	show: boolean;
-	name: string;
-	mainImages: ProductFiles[];
-	content: string;
-	price: number;
-	shippingFees: number;
-	buyQuantity: number;
-	extra: {
-		category: string;
-		tags: string[];
-		soundFile: ProductFiles;
-		sellerName: string;
-	};
-}
 const ProductEditSection = styled.section`
 	background-color: ${Common.colors.white};
 	padding-top: 100px;
@@ -267,7 +252,7 @@ function ProductEdit() {
 			<HelmetSetup
 				title="Edit Product"
 				description="음원 게시물 수정 페이지"
-				url={`productedit/${productId}`}
+				url={`/product/edit/${productId}`}
 			/>
 			<h2 className="a11yHidden">상품 수정</h2>
 			{userProductDetailLoading ? (

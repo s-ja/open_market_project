@@ -141,7 +141,7 @@ export function ProductListItem({ product }: ProductItemProps) {
 	return (
 		<ListItem key={product?._id}>
 			<StyledTitleLink
-				to={`/productdetail/${product._id}`}
+				to={`/product/${product._id}`}
 				aria-label={`${product.name}의 상세 페이지로 이동`}
 			>
 				<img
@@ -246,7 +246,7 @@ export function UserProductListItem({ product }: { product: Product }) {
 			</ThemeProvider>
 			<Link
 				className="manageLink"
-				to={`/productmanage/${product?._id}`}
+				to={`/product/manage/${product?._id}`}
 				aria-label={`${product.name}의 상세 페이지로 이동합니다.`}
 			>
 				상세보기
@@ -267,7 +267,7 @@ export function UserRepliesListItem({ reply }: { reply: Reply }) {
 			</StyledTitleSpan>
 			<span className="replyContent">{reply.content}</span>
 			<ShowStarRating rating={reply.rating} />
-			<StyledLink to={`/productdetail/${reply.product._id}`}>
+			<StyledLink to={`/product/${reply.product._id}`}>
 				음원 상세 페이지 이동
 			</StyledLink>
 		</ListItem>

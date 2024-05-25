@@ -32,7 +32,8 @@ interface CurrentUser {
 	name: string;
 	profileImage: string | null;
 }
-interface UpdateUserRequest {
+
+interface patchUserDataRequest {
 	email: string;
 	name: string;
 	password?: string;

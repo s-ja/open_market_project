@@ -1,12 +1,12 @@
 import HelmetSetup from "@/components/HelmetSetup";
 import MyPageList from "@/components/MyPageList";
 import { MyPageListSkeleton, UserDataSkeleton } from "@/components/SkeletonUI";
+import { useUserBookmarksQuery } from "@/hooks/bookmark/queries/useUserBookmarksQuery";
+import { useUserOrdersQuery } from "@/hooks/order/queries/useUserOrdersQueries";
+import { useUserProductsQuery } from "@/hooks/product/queries/useUserProductsQueries";
+import { useUserRepliesQuery } from "@/hooks/reply/queries/useUserRepliesQuery";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
-import { useUserBookmarksQuery } from "@/hooks/user/queries/bookmarks";
-import { useUserOrdersQuery } from "@/hooks/user/queries/orders";
-import { useUserProductsQuery } from "@/hooks/user/queries/products";
-import { useUserRepliesQuery } from "@/hooks/user/queries/replies";
-import { useUserDataQuery } from "@/hooks/user/queries/user";
+import { useUserDataQuery } from "@/hooks/user/queries/useUserDataQuery";
 import { currentUserState } from "@/states/authState";
 import { Common } from "@/styles/common";
 import styled from "@emotion/styled";
@@ -239,9 +239,7 @@ function MyPage() {
 										<p>{formatPhoneNumber(userData.phone)}</p>
 									</div>
 								</PersonalInfoItem>
-								<StyledLink to={`/useredit/${currentUser!._id}`}>
-									회원정보 수정
-								</StyledLink>
+								<StyledLink to={`/user/edit`}>회원정보 수정</StyledLink>
 							</PersonalInfo>
 							<Comment>
 								<Title>내가 쓴 댓글</Title>
@@ -261,7 +259,10 @@ function MyPage() {
 										<span>작성한 댓글이 없습니다.</span>
 									)}
 								</CommentInfo>
-								<StyledLink to={"/replies"} aria-label="내가 쓴 댓글 전체보기">
+								<StyledLink
+									to={"/user/replies"}
+									aria-label="내가 쓴 댓글 전체보기"
+								>
 									전체보기
 								</StyledLink>
 							</Comment>
@@ -277,7 +278,7 @@ function MyPage() {
 					data={isLoadingBookmarks ? [] : (bookmarkDetails || []).slice(0, 5)}
 					emptyMessage="북마크가 없습니다."
 					renderItem={(item) => (
-						<Link to={`/productdetail/${item.product_id}`}>
+						<Link to={`/product/${item.product_id}`}>
 							<Image
 								src={`${item.product.image.path}`}
 								alt={`${item.product.name}의 앨범 아트`}
@@ -286,7 +287,7 @@ function MyPage() {
 						</Link>
 					)}
 					linkText="전체보기"
-					linkUrl="/userbookmarks"
+					linkUrl="/user/bookmarks"
 				/>
 			)}
 			<MyPageList
@@ -294,7 +295,7 @@ function MyPage() {
 				data={historyList ? historyList.slice(0, 5) : []}
 				emptyMessage="히스토리가 없습니다."
 				renderItem={(item) => (
-					<Link to={`/productdetail/${item._id}`}>
+					<Link to={`/product/${item._id}`}>
 						<Image
 							src={`${item.mainImages[0].path}`}
 							alt={`${item.name}의 앨범 아트`}
@@ -311,7 +312,7 @@ function MyPage() {
 					data={isLoadingOrders ? [] : (userOrders || []).slice(0, 5)}
 					emptyMessage="구매내역이 없습니다."
 					renderItem={(item) => (
-						<Link to={`/productdetail/${item.products[0]._id}`}>
+						<Link to={`/product/${item.products[0]._id}`}>
 							<Image
 								src={item.products[0].image.path}
 								alt={`${item.products[0].name}의 앨범 아트`}
@@ -320,7 +321,7 @@ function MyPage() {
 						</Link>
 					)}
 					linkText="전체보기"
-					linkUrl="/orders"
+					linkUrl="/user/orders"
 				/>
 			)}
 			{isLoadingProducts ? (
@@ -340,7 +341,7 @@ function MyPage() {
 						</Link>
 					)}
 					linkText="전체보기"
-					linkUrl={`/user/${currentUser!._id}/products`}
+					linkUrl={`/user/products`}
 				/>
 			)}
 		</Section>

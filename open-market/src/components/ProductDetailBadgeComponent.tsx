@@ -1,8 +1,7 @@
-import { useBookMarksSuspenseQuery } from "@/hooks/product/queries/bookmark";
-import {
-	useDeleteBookmarkMutation,
-	usePostBookmarkMutation,
-} from "@/hooks/user/mutations/bookmark";
+import { useDeleteBookmarkMutation } from "@/hooks/bookmark/mutations/useDeleteBookmarkMutation";
+import { usePostBookmarkMutation } from "@/hooks/bookmark/mutations/usePostBookmarkMutation";
+import { useBookMarksSuspenseQuery } from "@/hooks/bookmark/queries/useBookMarksSuspenseQuery";
+
 import { Common } from "@/styles/common";
 import styled from "@emotion/styled";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
@@ -166,7 +165,7 @@ function ProductDetailExtraLink({
 					</NoUserPurchaseButton>
 				) : currentUser && currentUser._id === product?.seller_id ? (
 					<ProductExtraLink
-						to={`/productmanage/${product?._id}`}
+						to={`/product/manage/${product?._id}`}
 						aria-label="판매 음원 관리 페이지로 이동"
 					>
 						<CheckIcon />
@@ -174,7 +173,7 @@ function ProductDetailExtraLink({
 					</ProductExtraLink>
 				) : (currentUser && !order) || order === undefined ? (
 					<ProductExtraLink
-						to={`/productpurchase/${product?._id}`}
+						to={`/product/order/${product?._id}`}
 						aria-label="음원 상품 구매하기 버튼"
 					>
 						<CheckIcon />

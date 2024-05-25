@@ -1,4 +1,4 @@
-import { patchProductDetail } from "@/apis/product/product";
+import { patchProductDetail } from "@/apis/product/patch";
 import { axiosInstance } from "@/utils";
 
 vi.mock("@/utils", () => {

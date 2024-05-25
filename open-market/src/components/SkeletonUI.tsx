@@ -176,7 +176,7 @@ export function ProductEditSkeleton() {
 	);
 }
 
-export function ProductPurchaseSkeleton() {
+export function ProductOrderSkeleton() {
 	return (
 		<Box sx={{ width: "100%" }}>
 			<ProductInfoWrapper>

@@ -1,13 +1,13 @@
-import { postProductReply } from "@/apis/product/replies";
-import { useProductRepliesQuery } from "@/hooks/product/queries/reply";
+import { postProductReply } from "@/apis/reply/post";
 import { usePostReplyMutation } from "@/hooks/reply/mutations/usePostReplyMutation";
+import { useProductRepliesQuery } from "@/hooks/reply/queries/useProductRepliesQuery";
 import TestWrapper from "@/tests/Wrapper";
 import { renderHook, waitFor } from "@testing-library/react";
 import toast from "react-hot-toast";
 import { MockInstance, vi } from "vitest";
 
-vi.mock("@/apis/product/replies", () => ({
-	...vi.importActual("@/apis/product/replies"),
+vi.mock("@/apis/reply/post", () => ({
+	...vi.importActual("@/apis/reply/post"),
 	postProductReply: vi.fn(),
 }));
 

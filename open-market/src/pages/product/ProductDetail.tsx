@@ -12,10 +12,10 @@ import {
 	ProductDetailSkeleton,
 	ProductRepliesSkeleton,
 } from "@/components/SkeletonUI";
-import { useProductDetailSuspenseQuery } from "@/hooks/product/queries/detail";
-import { useProductOrderSuspenseQuery } from "@/hooks/product/queries/order";
-import { useProductRepliesQuery } from "@/hooks/product/queries/reply";
+import { useProductOrderSuspenseQuery } from "@/hooks/order/queries/useProductOrderSuspenseQuery";
+import { useProductDetailSuspenseQuery } from "@/hooks/product/queries/useProductDetailSuspenseQuery";
 import { usePostReplyMutation } from "@/hooks/reply/mutations/usePostReplyMutation";
+import { useProductRepliesQuery } from "@/hooks/reply/queries/useProductRepliesQuery";
 import { currentUserState } from "@/states/authState";
 import { codeState } from "@/states/categoryState";
 import { Heading, MoreButton } from "@/styles/ProductListStyle";
@@ -34,9 +34,6 @@ function ProductDetail() {
 	const navigate = useNavigate();
 
 	const { productId } = useParams();
-
-	const { data: allReplies, isLoading: isLoadingProductReplies } =
-		useProductRepliesQuery({ productId });
 
 	const currentUser = useRecoilValue(currentUserState);
 	const category = useRecoilValue(codeState);
@@ -66,6 +63,9 @@ function ProductDetail() {
 		currentUser,
 		productDetailData,
 	});
+
+	const { data: allReplies, isLoading: isLoadingProductReplies } =
+		useProductRepliesQuery({ productId });
 
 	const {
 		mutate: submitReply,
@@ -169,7 +169,7 @@ function ProductDetail() {
 			<HelmetSetup
 				title="Product Detail"
 				description="음원 상세 페이지"
-				url={`productdetail/${productId}`}
+				url={`product/${productId}`}
 			/>
 			<Heading>상세 페이지</Heading>
 			{productDetailLoading || productDetailData === undefined ? (

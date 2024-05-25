@@ -1,4 +1,4 @@
-import { getProductReplies } from "@/apis/product/replies";
+import { getProductReplies } from "@/apis/reply/get";
 import { axiosInstance } from "@/utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 

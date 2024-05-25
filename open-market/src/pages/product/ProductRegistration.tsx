@@ -1,11 +1,10 @@
-import { ProductRegisterForm } from "@/apis/product/product";
 import FormInput from "@/components/FormInput";
 import FunctionalButton from "@/components/FunctionalButton";
 import HelmetSetup from "@/components/HelmetSetup";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import SelectGenre from "@/components/SelectGenre";
 import Textarea from "@/components/Textarea";
-import { usePostProductMutation } from "@/hooks/product/mutations/registration";
+import { usePostProductMutation } from "@/hooks/product/mutations/usePostProductMutation";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { currentUserState } from "@/states/authState";
 import { codeState } from "@/states/categoryState";
@@ -211,7 +210,7 @@ function ProductRegistration() {
 			<HelmetSetup
 				title="Register Product"
 				description="음원 등록"
-				url="productregistration"
+				url="/product/registration"
 			/>
 			<h2 className="a11yHidden">상품 등록</h2>
 			<form encType="multipart/form-data" className="PostFormWrapper">

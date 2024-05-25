@@ -2,8 +2,8 @@ import HelmetSetup from "@/components/HelmetSetup";
 import { ProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
 import { ProductListSkeleton } from "@/components/SkeletonUI";
+import { useUserOrdersInfiniteQuery } from "@/hooks/order/queries/useUserOrdersQueries";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
-import { useUserOrdersInfiniteQuery } from "@/hooks/user/queries/orders";
 import {
 	Heading,
 	MoreButton,
@@ -66,7 +66,7 @@ function UserOrders() {
 			<HelmetSetup
 				title="My Orders"
 				description="주문 내역 조회"
-				url="orders"
+				url="/user/orders"
 			/>
 			<Heading>구매내역</Heading>
 			<SearchBar onClick={handleSearchKeyword} searchRef={searchRef} showable />

@@ -1,4 +1,4 @@
-import { postProductReply } from "@/apis/product/replies";
+import { postProductReply } from "@/apis/reply/post";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
