@@ -258,7 +258,7 @@ function Header() {
 							startIcon={<FileUpload />}
 							variant="outlined"
 							color="inherit"
-							onClick={() => navigate("/productregistration")}
+							onClick={() => navigate("/product/registration")}
 							aria-label="음원 상품 업로드 버튼"
 						>
 							업로드

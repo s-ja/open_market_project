@@ -1,9 +1,11 @@
 import { axiosInstance } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
+
 export interface CategoryFilterProductListProps {
 	resource: string;
 	category: string;
 }
+
 export const fetchFilterCategoryProductList = async ({
 	resource,
 	category,

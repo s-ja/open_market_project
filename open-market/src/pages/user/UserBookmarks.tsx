@@ -1,7 +1,7 @@
 import HelmetSetup from "@/components/HelmetSetup";
 import { ProductListSkeleton } from "@/components/SkeletonUI";
-import { useDeleteBookmarkMutation } from "@/hooks/user/mutations/bookmark";
-import { useUserBookmarksQuery } from "@/hooks/user/queries/bookmarks";
+import { useDeleteBookmarkMutation } from "@/hooks/bookmark/mutations/useDeleteBookmarkMutation";
+import { useUserBookmarksQuery } from "@/hooks/bookmark/queries/useUserBookmarksQuery";
 import {
 	Heading,
 	ProductContainer,
@@ -136,7 +136,7 @@ function UserBookmarks() {
 			<HelmetSetup
 				title="My Bookmarks"
 				description="북마크한 목록"
-				url="userbookmarks"
+				url="/user/bookmarks"
 			/>
 			<Heading>북마크한 목록</Heading>
 			<ProductContainer height="633px">
@@ -148,7 +148,7 @@ function UserBookmarks() {
 							bookmarkList.map((bookmark: Bookmark) => (
 								<ListItem key={bookmark.product_id}>
 									<StyledLink
-										to={`/productdetail/${bookmark.product_id}`}
+										to={`/product/${bookmark.product_id}`}
 										aria-label={`${bookmark.product.name}의 상세페이지로 이동`}
 									>
 										<img

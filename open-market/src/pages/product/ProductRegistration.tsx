@@ -1,14 +1,14 @@
-import { ProductRegisterForm } from "@/apis/product/product";
 import FormInput from "@/components/FormInput";
 import FunctionalButton from "@/components/FunctionalButton";
 import HelmetSetup from "@/components/HelmetSetup";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import SelectGenre from "@/components/SelectGenre";
 import Textarea from "@/components/Textarea";
-import { usePostProductMutation } from "@/hooks/product/mutations/registration";
+import { usePostProductMutation } from "@/hooks/product/mutations/usePostProductMutation";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { currentUserState } from "@/states/authState";
 import { codeState } from "@/states/categoryState";
+
 import { Common } from "@/styles/common";
 import { debounce } from "@/utils";
 import { uploadFile } from "@/utils/uploadFile";
@@ -18,14 +18,12 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import { Radio, RadioProps } from "@mui/material";
 import { styled as muiStyled } from "@mui/system";
+
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-
-interface FlexLayoutProps {
-	right?: boolean;
-}
+import { FlexLayout, FormTopLayout, FormTopRightLayout } from "./ProductManage";
 
 const ProductRegistSection = styled.section`
 	background-color: ${Common.colors.white};
@@ -46,12 +44,6 @@ const ProductRegistSection = styled.section`
 		flex-direction: column;
 		gap: ${Common.space.spacingXl};
 	}
-`;
-
-const FormTopLayout = styled.div`
-	width: 1248px;
-	display: flex;
-	gap: ${Common.space.spacingLg};
 `;
 
 const PostImageWrapper = styled.div`
@@ -119,20 +111,6 @@ const PostAudioWrapper = styled.div`
 		left: 50%;
 		transform: translate(-50%, 270%);
 	}
-`;
-
-const FormTopRightLayout = styled.div`
-	display: flex;
-	flex: 1;
-	flex-direction: column;
-	gap: ${Common.space.spacingLg};
-	width: 918px;
-`;
-
-const FlexLayout = styled.div<FlexLayoutProps>`
-	display: flex;
-	gap: ${Common.space.spacingXl};
-	${(props) => props.right && "justify-content: flex-end;"}
 `;
 
 const ProductRadioButtonWrapper = styled.div`
@@ -219,7 +197,9 @@ function ProductRegistration() {
 	}
 
 	function handleRegistCancel() {
-		const result = confirm("정말로 등록을 취소하시겠습니까?");
+		const result = confirm(
+			"페이지를 나가시면 음원 정보가 모두 사라지게 됩니다. 정말로 등록을 취소하시겠습니까?",
+		);
 		if (result) {
 			navigate(-1);
 		}
@@ -230,7 +210,7 @@ function ProductRegistration() {
 			<HelmetSetup
 				title="Register Product"
 				description="음원 등록"
-				url="productregistration"
+				url="/product/registration"
 			/>
 			<h2 className="a11yHidden">상품 등록</h2>
 			<form encType="multipart/form-data" className="PostFormWrapper">
@@ -359,6 +339,7 @@ function ProductRegistration() {
 						name="price"
 						label="가격"
 						type="number"
+						placeholder="0 "
 						handleFn={debounce((e: { target: { value: number } }) => {
 							if (e.target.value < 0) {
 								e.target.value = 0;

@@ -16,7 +16,7 @@ import Error404 from "./pages/error/Error404";
 import ProductDetail from "./pages/product/ProductDetail";
 import ProductEdit from "./pages/product/ProductEdit";
 import ProductManage from "./pages/product/ProductManage";
-import ProductPurchase from "./pages/product/ProductPurchase";
+import ProductOrder from "./pages/product/ProductOrder";
 import ProductRegistration from "./pages/product/ProductRegistration";
 import MyPage from "./pages/user/MyPage";
 import SignIn from "./pages/user/SignIn";
@@ -64,30 +64,24 @@ function App() {
 						<Route index element={<Index />} />
 						{/* sell */}
 						<Route
-							path="productregistration"
+							path="product/registration"
 							element={<ProductRegistration />}
 						/>
-						<Route path="productedit/:productId" element={<ProductEdit />} />
+						<Route path="product/edit/:productId" element={<ProductEdit />} />
 						<Route
-							path="productmanage/:productId"
+							path="product/manage/:productId"
 							element={<ProductManage />}
 						/>
 						{/* buy */}
-						<Route
-							path="productdetail/:productId"
-							element={<ProductDetail />}
-						/>
-						<Route
-							path="productpurchase/:productId"
-							element={<ProductPurchase />}
-						/>
+						<Route path="product/:productId" element={<ProductDetail />} />
+						<Route path="product/order/:productId" element={<ProductOrder />} />
 						{/* user */}
 						<Route path="mypage" element={<MyPage />} />
-						<Route path="useredit/:userId" element={<UserEdit />} />
-						<Route path="userbookmarks" element={<UserBookmarks />} />
-						<Route path="user/:userId/products" element={<UserProducts />} />
-						<Route path="orders" element={<UserOrders />} />
-						<Route path="replies" element={<UserReplies />} />
+						<Route path="user/edit" element={<UserEdit />} />
+						<Route path="user/bookmarks" element={<UserBookmarks />} />
+						<Route path="user/products" element={<UserProducts />} />
+						<Route path="user/orders" element={<UserOrders />} />
+						<Route path="user/replies" element={<UserReplies />} />
 						{/* signin, signup */}
 						<Route path="signin" element={<SignIn />} />
 						<Route path="signup" element={<SignUp />} />

@@ -1,7 +1,7 @@
 import HelmetSetup from "@/components/HelmetSetup";
 import { UserRepliesListItem } from "@/components/ProductListComponent";
 import { ProductListSkeleton } from "@/components/SkeletonUI";
-import { useUserRepliesQuery } from "@/hooks/user/queries/replies";
+import { useUserRepliesQuery } from "@/hooks/reply/queries/useUserRepliesQuery";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
 	Heading,
@@ -43,7 +43,7 @@ export default function UserReplies() {
 			<HelmetSetup
 				title="My Replies"
 				description="작성한 댓글 목록"
-				url="replies"
+				url="/user/replies"
 			/>
 			<Heading>내가 쓴 댓글</Heading>
 			{isLoadingUserReplies ? (

@@ -2,8 +2,8 @@ import AuthInput from "@/components/AuthInput";
 import HelmetSetup from "@/components/HelmetSetup";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
-import { useUpdateUserMutation } from "@/hooks/user/queries/useUpdateUserMutation";
-import { useUserDataQuery } from "@/hooks/user/queries/user";
+import { usePatchUserDataMutation } from "@/hooks/user/mutations/usePatchUserMutation";
+import { useUserDataQuery } from "@/hooks/user/queries/useUserDataQuery";
 import { currentUserState } from "@/states/authState";
 import { Common } from "@/styles/common";
 import { uploadFile } from "@/utils";
@@ -178,7 +178,7 @@ function UserEdit() {
 	const { data: userData, isLoading: isLoadingUserData } = useUserDataQuery(
 		currentUser!._id.toString(),
 	);
-	const { mutate: updateUserMutate, isPending } = useUpdateUserMutation();
+	const { mutate: pacthUserDataMutate, isPending } = usePatchUserDataMutation();
 
 	const [confirmAge, setConfirmAge] = useState(false);
 	const [formData, setFormData] = useState({
@@ -286,7 +286,7 @@ function UserEdit() {
 			? formData
 			: { ...formData, password: undefined, confirmPassword: undefined };
 
-		updateUserMutate({
+		pacthUserDataMutate({
 			userId: currentUser?._id as number,
 			userData: payload,
 		});
@@ -303,7 +303,7 @@ function UserEdit() {
 			<HelmetSetup
 				title="Edit User"
 				description="회원 정보 수정"
-				url={`useredit/${currentUser!._id}`}
+				url={`user/edit`}
 			/>
 			<Title>회원정보 수정</Title>
 			<Form onSubmit={handleSubmit}>

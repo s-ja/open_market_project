@@ -1,6 +1,6 @@
 import AuthInput from "@/components/AuthInput";
 import HelmetSetup from "@/components/HelmetSetup";
-import { useSignInMutation } from "@/hooks/user/queries/useSignInMutation";
+import { useSignInMutation } from "@/hooks/user/mutations/useSignInMutation";
 import { Common } from "@/styles/common";
 import { debounce } from "@/utils";
 import styled from "@emotion/styled";
