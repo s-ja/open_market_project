@@ -6,10 +6,10 @@ type TParams = {
 };
 
 export const useBookMarksSuspenseQuery = ({ productId }: TParams) => {
-	const { data, error, isLoading, refetch } = useQuery({
+	const { data, error, isLoading, isSuccess, refetch } = useQuery({
 		queryKey: ["bookmark", productId],
 		queryFn: () => getProductBookmark(productId),
 	});
 
-	return { data, error, isLoading, refetch };
+	return { data, error, isLoading, isSuccess, refetch };
 };
