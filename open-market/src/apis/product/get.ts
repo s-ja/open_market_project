@@ -43,3 +43,15 @@ export async function getUserProductDetail(productId?: string) {
 		console.error("상품 정보 조회 실패:", error);
 	}
 }
+
+export async function getProductListWithPageParam({ pageParam = 1 }) {
+	try {
+		const { data } = await axiosInstance.get(
+			`/products?page=${pageParam}&limit=4`,
+		);
+		return data;
+	} catch (error) {
+		console.error("Error fetching products:", error);
+		throw error;
+	}
+}

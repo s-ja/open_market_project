@@ -7,6 +7,7 @@ import HelmetSetup from "@/components/HelmetSetup";
 import { ProductListItem } from "@/components/ProductListComponent";
 import SearchBar from "@/components/SearchBar";
 import { IndexSkeleton } from "@/components/SkeletonUI";
+import { useProductListInfiniteQuery } from "@/hooks/product/queries/useProductListQuery";
 import { useCategoryFilterProductList } from "@/hooks/useCategoryFilterProductList";
 import { codeState } from "@/states/categoryState";
 import {
@@ -22,7 +23,6 @@ import {
 } from "@/styles/ProductListStyle";
 import { Common } from "@/styles/common";
 import {
-	axiosInstance,
 	searchProductList,
 	setItemWithExpireTime,
 	sortByNewestProductList,
@@ -31,7 +31,6 @@ import {
 import styled from "@emotion/styled";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 
@@ -100,18 +99,6 @@ function Index() {
 	const [sortedFilteredProductList, setSortedFilteredProductList] =
 		useState<Product[]>();
 
-	async function fetchProducts({ pageParam = 1 }) {
-		try {
-			const { data } = await axiosInstance.get(
-				`/products?page=${pageParam}&limit=4`,
-			);
-			return data;
-		} catch (error) {
-			console.error("Error fetching products:", error);
-			throw error;
-		}
-	}
-
 	const {
 		data,
 		error,
@@ -120,15 +107,7 @@ function Index() {
 		hasNextPage,
 		fetchNextPage,
 		isFetchingNextPage,
-	} = useInfiniteQuery({
-		queryKey: ["products"],
-		queryFn: fetchProducts,
-		initialPageParam: 1,
-		getNextPageParam: (lastPage) =>
-			lastPage.pagination.page < lastPage.pagination.totalPages
-				? lastPage.pagination.page + 1
-				: null,
-	});
+	} = useProductListInfiniteQuery();
 
 	const fetchedProductList = data?.pages.map((page) => page.item).flat();
 
