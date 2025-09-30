@@ -16,7 +16,7 @@ export function usePostReplyMutation({ productId }: TParams) {
 			await queryClient.cancelQueries({
 				queryKey: ["productReplies", productId],
 			});
-			const previousReplies = queryClient.getQueryData<Reply>([
+			const previousReplies = queryClient.getQueryData<Reply[]>([
 				"productReplies",
 				productId,
 			]);
@@ -25,7 +25,7 @@ export function usePostReplyMutation({ productId }: TParams) {
 				// undefined일 때는 빈배열 반환
 				(prevReplies = []) => [...prevReplies, newReply],
 			);
-			return previousReplies;
+			return previousReplies || [];
 		},
 
 		onSuccess: () => {
@@ -40,9 +40,9 @@ export function usePostReplyMutation({ productId }: TParams) {
 			});
 		},
 
-		onError: (error, _newReply, context: Reply | undefined) => {
+		onError: (error, _newReply, context: Reply[] | undefined) => {
 			console.error(error);
-			queryClient.setQueryData(["productReplies"], context);
+			queryClient.setQueryData(["productReplies", productId], context);
 		},
 	});
 
