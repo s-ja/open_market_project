@@ -6,3 +6,4 @@ export * from "./uploadFile";
 export * from "./filterProductList";
 export * from "./formData";
 export * from "./sortProductList";
+export { axiosInstance } from "./refreshToken";
