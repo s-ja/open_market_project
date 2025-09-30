@@ -1,7 +1,10 @@
 import SignIn from "@/pages/user/SignIn";
+import { axiosInstance } from "@/utils";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { HelmetProvider } from "react-helmet-async";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { RecoilRoot } from "recoil";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockedNavigate = vi.fn();
@@ -14,20 +17,36 @@ vi.mock("react-router-dom", async () => {
 	};
 });
 
-describe("로그인 페이지 입력 창 렌더링 테스트", async () => {
-	const mockedPost = vi.fn();
+// Mock axiosInstance at module level
+vi.mock("@/utils", async (importOriginal) => {
+	const actual = await importOriginal() as any;
+	return {
+		...actual,
+		axiosInstance: {
+			post: vi.fn(),
+		},
+	};
+});
+
+describe("로그인 페이지 입력 창 렌더링 테스트", () => {
+	let queryClient: QueryClient;
 
 	beforeEach(() => {
-		vi.mock("@/utils/axiosInstance", () => ({
-			post: mockedPost.mockResolvedValue({
-				data: {
-					ok: 1,
-					item: {
-						token: { accessToken: "access123", refreshToken: "refresh123" },
-					},
+		queryClient = new QueryClient({
+			defaultOptions: {
+				queries: { retry: false },
+				mutations: { retry: false },
+			},
+		});
+		
+		(axiosInstance.post as any).mockResolvedValue({
+			data: {
+				ok: 1,
+				item: {
+					token: { accessToken: "access123", refreshToken: "refresh123" },
 				},
-			}),
-		}));
+			},
+		});
 	});
 
 	afterEach(() => {
@@ -36,9 +55,13 @@ describe("로그인 페이지 입력 창 렌더링 테스트", async () => {
 
 	it("로그인 페이지 렌더링 테스트", () => {
 		render(
-			<HelmetProvider>
-				<SignIn />
-			</HelmetProvider>,
+			<QueryClientProvider client={queryClient}>
+				<RecoilRoot>
+					<HelmetProvider>
+						<SignIn />
+					</HelmetProvider>
+				</RecoilRoot>
+			</QueryClientProvider>,
 		);
 
 		const emailInput = screen.getByLabelText("이메일");
@@ -53,9 +76,13 @@ describe("로그인 페이지 입력 창 렌더링 테스트", async () => {
 
 	it("로그인 페이지 값 입력 테스트", async () => {
 		render(
-			<HelmetProvider>
-				<SignIn />
-			</HelmetProvider>,
+			<QueryClientProvider client={queryClient}>
+				<RecoilRoot>
+					<HelmetProvider>
+						<SignIn />
+					</HelmetProvider>
+				</RecoilRoot>
+			</QueryClientProvider>,
 		);
 		const emailInput = screen.getByLabelText("이메일");
 		const passwordInput = screen.getByLabelText("비밀번호");
