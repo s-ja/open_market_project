@@ -24,7 +24,10 @@ dist-ssr
 *.sw?
 
 # dotenv environment variable files
-# .env
-# .env.local
-# .env.production
-# .env.development
+.env
+.env.local
+.env.production
+.env.development
+
+.netlify
+.netlify/*
